@@ -1,0 +1,58 @@
+{
+  "name": "@nlci/cli",
+  "version": "0.1.0",
+  "description": "Command-line interface for NLCI - Neural-LSH Code Intelligence",
+  "type": "module",
+  "bin": {
+    "nlci": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/cli.js",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "nlci",
+    "cli",
+    "code-similarity",
+    "clone-detection",
+    "lsh"
+  ],
+  "author": "",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/nlci.git",
+    "directory": "apps/cli"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@nlci/core": "workspace:*",
+    "@nlci/shared": "workspace:*",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "glob": "^10.3.10",
+    "ora": "^8.0.1",
+    "cosmiconfig": "^9.0.0",
+    "table": "^6.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  }
+}

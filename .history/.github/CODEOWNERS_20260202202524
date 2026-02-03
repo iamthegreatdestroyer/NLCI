@@ -1,0 +1,41 @@
+# NLCI Code Owners
+
+# These owners will be automatically requested for review
+
+# Default owners for everything in the repo
+
+- @iamthegreatdestroyer
+
+# Core package - requires careful review
+
+/packages/core/ @iamthegreatdestroyer
+
+# LSH native bindings
+
+/packages/lsh-native/ @iamthegreatdestroyer
+
+# CLI application
+
+/apps/cli/ @iamthegreatdestroyer
+
+# VS Code extension
+
+/apps/vscode/ @iamthegreatdestroyer
+
+# Configuration packages
+
+/packages/config/ @iamthegreatdestroyer
+
+# Documentation
+
+/docs/ @iamthegreatdestroyer
+
+# CI/CD and GitHub configuration
+
+/.github/ @iamthegreatdestroyer
+
+# Root configuration files
+
+/_.json @iamthegreatdestroyer
+/_.yaml @iamthegreatdestroyer
+/\*.yml @iamthegreatdestroyer

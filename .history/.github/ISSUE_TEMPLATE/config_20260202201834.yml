@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://nlci.dev/docs
+    about: Check our documentation before opening an issue
+  - name: Discussions
+    url: https://github.com/iamthegreatdestroyer/nlci/discussions
+    about: Ask questions and discuss ideas in GitHub Discussions
+  - name: Security Vulnerabilities
+    url: https://github.com/iamthegreatdestroyer/nlci/security/advisories/new
+    about: Report security vulnerabilities privately

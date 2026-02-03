@@ -1,0 +1,24 @@
+{
+  "name": "nlci-custom-embedder-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Example of implementing custom embedding models for NLCI",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node usage.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nlci/core": "workspace:*",
+    "@nlci/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "name": "nlci-vscode",
+  "displayName": "NLCI - Code Clone Detection",
+  "description": "Neural-LSH Code Intelligence - Find similar code blocks in O(1) time",
+  "version": "0.1.0",
+  "publisher": "nlci",
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "code clone",
+    "duplicate code",
+    "similarity",
+    "lsh",
+    "code analysis"
+  ],
+  "activationEvents": [
+    "workspaceContains:.nlci-index",
+    "workspaceContains:nlci.config.js",
+    "workspaceContains:nlci.config.json"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nlci.scan",
+        "title": "NLCI: Scan Workspace",
+        "icon": "$(search)"
+      },
+      {
+        "command": "nlci.findSimilar",
+        "title": "NLCI: Find Similar Code",
+        "icon": "$(references)"
+      },
+      {
+        "command": "nlci.showClones",
+        "title": "NLCI: Show All Clones",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "nlci.clearIndex",
+        "title": "NLCI: Clear Index"
+      },
+      {
+        "command": "nlci.showStats",
+        "title": "NLCI: Show Statistics"
+      },
+      {
+        "command": "nlci.openSettings",
+        "title": "NLCI: Open Settings"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "nlci.findSimilar",
+          "group": "nlci",
+          "when": "editorHasSelection"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "nlci.scan",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "nlci.findSimilar",
+          "when": "editorIsOpen"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "NLCI",
+      "properties": {
+        "nlci.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable NLCI code clone detection"
+        },
+        "nlci.autoScan": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically scan workspace on startup"
+        },
+        "nlci.threshold": {
+          "type": "number",
+          "default": 0.85,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum similarity threshold for clone detection"
+        },
+        "nlci.showCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show code lens above functions with detected clones"
+        },
+        "nlci.showDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show diagnostics for detected clones"
+        },
+        "nlci.diagnosticSeverity": {
+          "type": "string",
+          "enum": ["error", "warning", "information", "hint"],
+          "default": "information",
+          "description": "Severity level for clone diagnostics"
+        },
+        "nlci.excludePatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["**/node_modules/**", "**/dist/**"],
+          "description": "Glob patterns to exclude from scanning"
+        },
+        "nlci.lsh.numTables": {
+          "type": "number",
+          "default": 20,
+          "description": "Number of LSH hash tables (L)"
+        },
+        "nlci.lsh.numBits": {
+          "type": "number",
+          "default": 12,
+          "description": "Number of bits per hash (K)"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "nlciClones",
+          "name": "Code Clones",
+          "when": "nlci.hasIndex"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nlci",
+          "title": "NLCI",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run build",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies"
+  },
+  "dependencies": {
+    "@nlci/core": "workspace:*",
+    "@nlci/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@nlci/config": "workspace:*",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,393 @@
+# Getting Started with NLCI
+
+Welcome to NLCI (Neural-LSH Code Intelligence)! This guide will help you get started with detecting code clones in your projects.
+
+## Installation
+
+### CLI Tool
+
+Install the NLCI CLI globally:
+
+```bash
+npm install -g @nlci/cli
+```
+
+Or use it in a specific project:
+
+```bash
+npm install --save-dev @nlci/cli
+```
+
+### VS Code Extension
+
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search for "NLCI"
+4. Click Install
+
+Or install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=nlci.nlci-vscode).
+
+### Programmatic API
+
+Add NLCI to your project:
+
+```bash
+npm install @nlci/core
+```
+
+## Quick Start: CLI
+
+### 1. Initialize Configuration
+
+```bash
+nlci init
+```
+
+This creates `.nlcirc.json`:
+
+```json
+{
+  "lsh": {
+    "numTables": 20,
+    "numBits": 12,
+    "embeddingDim": 384
+  },
+  "similarity": {
+    "threshold": 0.85,
+    "minLines": 5,
+    "maxLines": 500
+  },
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/*.min.js"]
+}
+```
+
+### 2. Scan Your Codebase
+
+```bash
+# Scan current directory
+nlci scan .
+
+# Scan specific directory
+nlci scan ./src
+
+# Scan with custom config
+nlci scan ./src --config custom.json
+```
+
+**Output:**
+
+```
+🔍 Scanning for code blocks...
+✓ Found 1,234 code blocks in 145 files (2.3s)
+🏗️ Building LSH index...
+✓ Indexed 1,234 blocks in 20 hash tables (0.8s)
+💾 Saved index to .nlci/index.json
+```
+
+### 3. Find Similar Code
+
+```bash
+# Find clones for a file
+nlci query ./src/utils/helper.ts
+
+# Find clones for specific lines
+nlci query ./src/utils/helper.ts --lines 10-50
+
+# Set custom threshold
+nlci query ./src/utils/helper.ts --threshold 0.90
+```
+
+**Output:**
+
+```
+🔎 Querying for similar code...
+
+Found 3 similar blocks:
+
+1. Type-2 Clone (96.3% similar)
+   Source: src/utils/helper.ts:10-25
+   Target: src/services/api.ts:45-60
+
+2. Type-3 Clone (88.7% similar)
+   Source: src/utils/helper.ts:10-25
+   Target: src/components/Form.tsx:112-130
+
+3. Type-4 Clone (73.2% similar)
+   Source: src/utils/helper.ts:10-25
+   Target: src/legacy/old-utils.js:200-220
+```
+
+### 4. Generate Reports
+
+```bash
+# HTML report
+nlci report --output clone-report.html
+
+# JSON report
+nlci report --format json --output clones.json
+
+# Markdown summary
+nlci report --format markdown --output CLONES.md
+```
+
+### 5. View Statistics
+
+```bash
+nlci stats
+```
+
+**Output:**
+
+```
+📊 NLCI Index Statistics
+
+Files:        145
+Code Blocks:  1,234
+Hash Tables:  20
+Avg Bucket:   61.7 items
+
+Clone Types:
+  Type-1 (Exact):         23 pairs
+  Type-2 (Parameterized): 45 pairs
+  Type-3 (Near-miss):     89 pairs
+  Type-4 (Semantic):      67 pairs
+
+Index Size:   2.3 MB
+Query Time:   ~2ms (O(1))
+```
+
+## Quick Start: VS Code Extension
+
+### 1. Scan Workspace
+
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+2. Run `NLCI: Scan Workspace`
+3. Wait for scanning to complete
+
+### 2. View Clones
+
+The "Code Clones" view appears in the Explorer sidebar:
+
+```
+Code Clones
+├── src/utils/helper.ts (3 clones)
+│   ├── Type-2: src/services/api.ts (96.3%)
+│   ├── Type-3: src/components/Form.tsx (88.7%)
+│   └── Type-4: src/legacy/old-utils.js (73.2%)
+├── src/services/data.ts (2 clones)
+│   └── ...
+```
+
+### 3. Find Similar Code
+
+1. Select some code
+2. Right-click → `NLCI: Find Similar Code`
+3. View results in Quick Pick
+
+### 4. Code Lens
+
+When enabled, code lens annotations appear above code blocks:
+
+```typescript
+// 3 clones found | Find similar
+function processData(data: any[]) {
+  // function implementation
+}
+```
+
+Click to view clones or find similar code.
+
+### 5. Diagnostics
+
+Detected clones appear as diagnostics:
+
+```
+ℹ️ Code clone detected (Type-2, 96.3% similar)
+   Also found in: src/services/api.ts:45-60
+```
+
+## Quick Start: Programmatic API
+
+### Basic Usage
+
+```typescript
+import { NlciEngine } from '@nlci/core';
+
+// Create engine
+const engine = new NlciEngine({
+  lsh: {
+    numTables: 20,
+    numBits: 12,
+    embeddingDim: 384,
+  },
+  similarity: {
+    threshold: 0.85,
+  },
+});
+
+// Index directory
+await engine.indexDirectory('./src', {
+  extensions: ['.ts', '.js'],
+  exclude: ['**/*.test.ts', '**/node_modules/**'],
+});
+
+// Query for similar code
+const results = await engine.query({
+  filePath: './src/utils/helper.ts',
+  startLine: 10,
+  endLine: 50,
+});
+
+// Process results
+for (const result of results) {
+  console.log(`${result.cloneType}: ${(result.similarity * 100).toFixed(1)}%`);
+  console.log(`  ${result.target.filePath}:${result.target.startLine}`);
+}
+```
+
+### Advanced Usage
+
+```typescript
+import { NlciEngine, CodeBlockParser } from '@nlci/core';
+import { Logger } from '@nlci/shared';
+
+const logger = new Logger('MyApp');
+
+// Create engine with custom config
+const engine = new NlciEngine({
+  lsh: {
+    numTables: 30, // Higher recall
+    numBits: 16, // Higher precision
+    embeddingDim: 384,
+  },
+  similarity: {
+    threshold: 0.9, // Stricter matching
+    minLines: 10, // Ignore small blocks
+    maxLines: 500,
+  },
+});
+
+// Custom file filtering
+const shouldInclude = (path: string): boolean => {
+  return path.endsWith('.ts') && !path.includes('.test.');
+};
+
+// Index with progress tracking
+await engine.indexDirectory('./src', {
+  extensions: ['.ts'],
+  exclude: ['**/node_modules/**'],
+  filter: shouldInclude,
+  onProgress: (current, total) => {
+    logger.info(`Indexed ${current}/${total} files`);
+  },
+});
+
+// Save index
+await engine.saveIndex('.nlci/index.json');
+
+// Load index later
+await engine.loadIndex('.nlci/index.json');
+
+// Find all clones
+const allClones = await engine.findAllClones();
+
+// Group by file
+const byFile = new Map<string, typeof allClones>();
+for (const clone of allClones) {
+  const path = clone.source.filePath;
+  if (!byFile.has(path)) {
+    byFile.set(path, []);
+  }
+  byFile.get(path)!.push(clone);
+}
+
+// Get statistics
+const stats = engine.getStatistics();
+console.log(`Indexed ${stats.totalBlocks} blocks from ${stats.totalFiles} files`);
+```
+
+## Configuration
+
+### Global Config
+
+Create `~/.nlcirc.json`:
+
+```json
+{
+  "lsh": {
+    "numTables": 20,
+    "numBits": 12
+  },
+  "similarity": {
+    "threshold": 0.85
+  }
+}
+```
+
+### Project Config
+
+Create `.nlcirc.json` in project root:
+
+```json
+{
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["**/node_modules/**", "**/*.test.ts", "**/dist/**"],
+  "lsh": {
+    "numTables": 20,
+    "numBits": 12,
+    "embeddingDim": 384
+  },
+  "similarity": {
+    "threshold": 0.85,
+    "minLines": 5,
+    "maxLines": 500
+  }
+}
+```
+
+## Next Steps
+
+- [API Reference](api-reference.md) - Complete API documentation
+- [Algorithms](algorithms.md) - How LSH works
+- [Examples](../examples/) - Example projects
+- [Contributing](../CONTRIBUTING.md) - Help improve NLCI
+
+## Common Issues
+
+### "No embedding model found"
+
+Install the embedding model:
+
+```bash
+nlci download-model code-embedder-small
+```
+
+### High memory usage
+
+Reduce the number of hash tables:
+
+```json
+{
+  "lsh": {
+    "numTables": 10
+  }
+}
+```
+
+### Too many false positives
+
+Increase the similarity threshold:
+
+```json
+{
+  "similarity": {
+    "threshold": 0.95
+  }
+}
+```
+
+## Getting Help
+
+- [GitHub Issues](https://github.com/iamthegreatdestroyer/NLCI/issues)
+- [GitHub Discussions](https://github.com/iamthegreatdestroyer/NLCI/discussions)
+- [Documentation](.)

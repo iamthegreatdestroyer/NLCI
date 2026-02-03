@@ -1,0 +1,21 @@
+{
+  "name": "nlci-basic-usage-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Basic usage example for NLCI",
+  "main": "example.ts",
+  "scripts": {
+    "start": "ts-node example.ts",
+    "build": "tsc",
+    "clean": "rm -rf .nlci dist"
+  },
+  "dependencies": {
+    "@nlci/core": "workspace:*",
+    "@nlci/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  }
+}

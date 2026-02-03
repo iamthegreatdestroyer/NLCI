@@ -1,0 +1,322 @@
+# Custom Embedder Example
+
+This example demonstrates implementing a custom embedding model for NLCI.
+
+## Overview
+
+NLCI uses CodeBERT embeddings by default, but you can implement custom models for:
+
+- **Domain-specific code** (e.g., DSLs, proprietary languages)
+- **Alternative architectures** (e.g., GraphCodeBERT, CodeT5)
+- **Fine-tuned models** (trained on your codebase)
+- **Hybrid approaches** (combining multiple models)
+
+## Custom Embedder Interface
+
+All embedders must implement `EmbeddingModel`:
+
+```typescript
+interface EmbeddingModel {
+  /**
+   * Generate embedding vector for code snippet
+   */
+  embed(code: string): Promise<Result<Float32Array, Error>>;
+
+  /**
+   * Get embedding dimension
+   */
+  getDimension(): number;
+
+  /**
+   * Initialize model (load weights, etc.)
+   */
+  initialize(): Promise<Result<void, Error>>;
+
+  /**
+   * Cleanup resources
+   */
+  dispose(): Promise<void>;
+}
+```
+
+## Example: Custom Transformer Model
+
+See [`custom-model.ts`](./custom-model.ts) for a complete implementation using a custom transformer.
+
+## Example: GraphCodeBERT
+
+GraphCodeBERT considers code structure (ASTs) for better embeddings:
+
+```typescript
+import { GraphCodeBERTEmbedder } from './custom-model';
+import { NlciEngine } from '@nlci/core';
+
+const embedder = new GraphCodeBERTEmbedder({
+  modelPath: './models/graphcodebert',
+  maxLength: 512,
+  useAst: true, // Include AST features
+});
+
+await embedder.initialize();
+
+const engine = await NlciEngine.create({
+  embeddingModel: embedder,
+  similarity: { threshold: 0.85 },
+});
+```
+
+## Example: Fine-Tuned Model
+
+Train CodeBERT on your codebase:
+
+```typescript
+import { FineTunedCodeBERT } from './custom-model';
+
+const embedder = new FineTunedCodeBERT({
+  baseModel: 'microsoft/codebert-base',
+  checkpointPath: './checkpoints/my-model.pt',
+  device: 'cuda', // Use GPU if available
+});
+
+await embedder.initialize();
+```
+
+## Example: Hybrid Embedder
+
+Combine multiple models:
+
+```typescript
+import { HybridEmbedder } from './custom-model';
+
+const embedder = new HybridEmbedder({
+  models: [
+    { model: codeBertModel, weight: 0.6 },
+    { model: graphCodeBertModel, weight: 0.4 },
+  ],
+  aggregation: 'weighted-average',
+});
+```
+
+## Using Custom Embedders
+
+### With CLI
+
+```bash
+# Create custom embedder plugin
+export NLCI_EMBEDDER_PATH=./custom-embedder.js
+
+# Use in scan
+nlci scan src/ --embedder custom
+```
+
+### With API
+
+```typescript
+import { CustomEmbedder } from './custom-model';
+
+const embedder = new CustomEmbedder(config);
+await embedder.initialize();
+
+const engine = await NlciEngine.create({
+  embeddingModel: embedder,
+  // ... other config
+});
+
+// Use engine normally
+const result = await engine.indexDirectory('./src');
+```
+
+## Performance Considerations
+
+### Model Size vs Speed
+
+| Model             | Size   | Speed  | Accuracy        |
+| ----------------- | ------ | ------ | --------------- |
+| DistilCodeBERT    | 82MB   | Fast   | Good            |
+| CodeBERT          | 500MB  | Medium | Better          |
+| GraphCodeBERT     | 500MB  | Slower | Best            |
+| Custom Fine-Tuned | Varies | Varies | Domain-specific |
+
+### Optimization Tips
+
+1. **Batch Processing**: Process multiple files at once
+2. **Caching**: Cache embeddings for unchanged files
+3. **Quantization**: Use INT8 models (8x smaller, 2-4x faster)
+4. **GPU Acceleration**: Use CUDA for large codebases
+
+```typescript
+const embedder = new CustomEmbedder({
+  batchSize: 32, // Process 32 files at once
+  cache: true, // Enable embedding cache
+  quantization: 'int8', // Use INT8 quantization
+  device: 'cuda', // Use GPU
+});
+```
+
+## Training Your Own Model
+
+### 1. Collect Training Data
+
+```python
+# Collect code snippets from your codebase
+from pathlib import Path
+
+def collect_code_samples(directory: str) -> list[str]:
+    samples = []
+    for file in Path(directory).rglob('*.ts'):
+        samples.append(file.read_text())
+    return samples
+
+samples = collect_code_samples('./src')
+```
+
+### 2. Fine-Tune CodeBERT
+
+```python
+from transformers import RobertaForMaskedLM, RobertaTokenizer, Trainer
+
+model = RobertaForMaskedLM.from_pretrained('microsoft/codebert-base')
+tokenizer = RobertaTokenizer.from_pretrained('microsoft/codebert-base')
+
+# Prepare dataset
+train_dataset = CodeDataset(samples, tokenizer)
+
+# Train
+trainer = Trainer(
+    model=model,
+    train_dataset=train_dataset,
+    args=TrainingArguments(
+        output_dir='./checkpoints',
+        num_train_epochs=3,
+        per_device_train_batch_size=8,
+    )
+)
+
+trainer.train()
+```
+
+### 3. Export for NLCI
+
+```python
+# Save model
+model.save_pretrained('./models/my-model')
+tokenizer.save_pretrained('./models/my-model')
+
+# Convert to ONNX for faster inference
+from transformers.onnx import export
+export(
+    preprocessor=tokenizer,
+    model=model,
+    config=model.config,
+    opset=14,
+    output=Path('./models/my-model-onnx')
+)
+```
+
+## Example Models
+
+### DistilCodeBERT (Fast)
+
+```typescript
+export class DistilCodeBERTEmbedder implements EmbeddingModel {
+  private model: any;
+
+  async initialize() {
+    this.model = await loadModel('distilcodebert');
+    return Result.ok(undefined);
+  }
+
+  async embed(code: string): Promise<Result<Float32Array, Error>> {
+    const tokens = this.tokenize(code);
+    const embedding = await this.model.encode(tokens);
+    return Result.ok(new Float32Array(embedding));
+  }
+
+  getDimension(): number {
+    return 384; // DistilCodeBERT dimension
+  }
+}
+```
+
+### CodeT5 (Best for generation)
+
+```typescript
+export class CodeT5Embedder implements EmbeddingModel {
+  private encoder: any;
+
+  async initialize() {
+    this.encoder = await loadModel('Salesforce/codet5-base');
+    return Result.ok(undefined);
+  }
+
+  async embed(code: string): Promise<Result<Float32Array, Error>> {
+    // Use encoder-only (no generation)
+    const embedding = await this.encoder.encode(code, {
+      useEncoder: true,
+      normalize: true,
+    });
+    return Result.ok(new Float32Array(embedding));
+  }
+
+  getDimension(): number {
+    return 768; // CodeT5 dimension
+  }
+}
+```
+
+## Benchmarking Your Model
+
+Compare your custom model against CodeBERT:
+
+```bash
+# Benchmark default CodeBERT
+nlci scan src/ --benchmark
+# => Indexing: 100 files/sec, Query: 0.5ms
+
+# Benchmark custom model
+export NLCI_EMBEDDER_PATH=./custom-embedder.js
+nlci scan src/ --embedder custom --benchmark
+# => Indexing: 50 files/sec, Query: 1.2ms
+```
+
+## Debugging
+
+Enable detailed logging:
+
+```typescript
+const embedder = new CustomEmbedder({
+  debug: true,
+  logLevel: 'verbose',
+});
+
+embedder.on('embedding-generated', (event) => {
+  console.log('Embedded:', event.code.substring(0, 50));
+  console.log('Vector:', event.embedding.slice(0, 5));
+});
+```
+
+## Common Issues
+
+### Out of Memory
+
+- Reduce batch size
+- Use model quantization
+- Process files sequentially
+
+### Slow Embeddings
+
+- Enable GPU acceleration
+- Use smaller model (DistilCodeBERT)
+- Cache embeddings
+
+### Poor Accuracy
+
+- Fine-tune on your codebase
+- Increase embedding dimension
+- Use GraphCodeBERT for structural code
+
+## Next Steps
+
+- [API Reference](../../docs/api-reference.md)
+- [Algorithm Details](../../docs/algorithms.md)
+- [CI Integration Example](../ci-integration/)

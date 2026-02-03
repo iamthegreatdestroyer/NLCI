@@ -1,0 +1,81 @@
+{
+  "name": "@nlci/core",
+  "version": "0.1.0",
+  "description": "Core NLCI engine with LSH-based code similarity detection",
+  "author": "Stevo <sgbilod@gmail.com>",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./lsh": {
+      "import": "./dist/lsh/index.mjs",
+      "require": "./dist/lsh/index.js",
+      "types": "./dist/lsh/index.d.ts"
+    },
+    "./engine": {
+      "import": "./dist/engine/index.mjs",
+      "require": "./dist/engine/index.js",
+      "types": "./dist/engine/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@nlci/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@nlci/config": "workspace:*",
+    "@types/node": "^20.10.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "peerDependencies": {
+    "onnxruntime-node": "^1.16.0"
+  },
+  "peerDependenciesMeta": {
+    "onnxruntime-node": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "nlci",
+    "code-similarity",
+    "lsh",
+    "locality-sensitive-hashing",
+    "clone-detection",
+    "code-analysis"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamthegreatdestroyer/nlci.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/iamthegreatdestroyer/nlci/issues"
+  },
+  "homepage": "https://nlci.dev"
+}

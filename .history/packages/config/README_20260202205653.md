@@ -1,0 +1,110 @@
+# @nlci/config
+
+Shared TypeScript, ESLint, and Prettier configurations for NLCI packages.
+
+## Installation
+
+```bash
+pnpm add -D @nlci/config
+```
+
+## Usage
+
+### TypeScript
+
+Extend from one of the base configs in your `tsconfig.json`:
+
+```json
+{
+  "extends": "@nlci/config/typescript/base"
+}
+```
+
+Or for library packages:
+
+```json
+{
+  "extends": "@nlci/config/typescript/library",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  }
+}
+```
+
+Or for Node.js applications:
+
+```json
+{
+  "extends": "@nlci/config/typescript/node"
+}
+```
+
+### ESLint
+
+Extend from the base config in your `.eslintrc.js`:
+
+```javascript
+module.exports = {
+  extends: ['@nlci/config/eslint/base'],
+  parserOptions: {
+    project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
+  },
+};
+```
+
+For library packages:
+
+```javascript
+module.exports = {
+  extends: ['@nlci/config/eslint/library'],
+  parserOptions: {
+    project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
+  },
+};
+```
+
+### Prettier
+
+Reference the config in your `package.json`:
+
+```json
+{
+  "prettier": "@nlci/config/prettier"
+}
+```
+
+Or create a `.prettierrc.js`:
+
+```javascript
+module.exports = require('@nlci/config/prettier');
+```
+
+## Available Configurations
+
+### TypeScript
+
+| Config               | Description                                            |
+| -------------------- | ------------------------------------------------------ |
+| `typescript/base`    | Base strict TypeScript settings                        |
+| `typescript/library` | Optimized for library packages with composite projects |
+| `typescript/node`    | Optimized for Node.js applications                     |
+
+### ESLint
+
+| Config           | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| `eslint/base`    | Base ESLint rules with TypeScript and import sorting |
+| `eslint/library` | Stricter rules for library packages                  |
+
+### Prettier
+
+| Config     | Description                |
+| ---------- | -------------------------- |
+| `prettier` | Consistent code formatting |
+
+## License
+
+AGPL-3.0-or-later
