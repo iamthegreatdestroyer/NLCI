@@ -9,15 +9,27 @@ build/
 .next/
 out/
 
+# Docusaurus
+.docusaurus/
+build/
+.cache-loader/
+
 # Turbo
 .turbo/
 
 # IDE
 .idea/
 .vscode/
+.vscode-test/
+.history/
 *.swp
 *.swo
 *~
+
+# VS Code extension development
+*.vsix
+out/
+node_modules/
 
 # OS
 .DS_Store
@@ -62,6 +74,20 @@ packages/lsh-native/target/
 *.temp
 .cache/
 
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
 # Debug
 *.pdb
 *.dmp
+
+# Docusaurus static site
+static/
+
+# Documentation build artifacts
+docs/api/generated/
+
+# Misc
+hash-table-backup.txt
+.prettierignore

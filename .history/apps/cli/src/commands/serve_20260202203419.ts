@@ -32,13 +32,11 @@ export const serveCommand = new Command('serve')
     try {
       // Load index
       const indexPath = path.resolve(options.index ?? '.nlci-index');
-      
+
       try {
         await fs.access(indexPath);
       } catch {
-        throw new Error(
-          `Index not found at ${indexPath}. Run 'nlci scan' first.`,
-        );
+        throw new Error(`Index not found at ${indexPath}. Run 'nlci scan' first.`);
       }
 
       spinner.text = 'Loading index...';
@@ -47,9 +45,7 @@ export const serveCommand = new Command('serve')
       await engine.load(indexPath);
 
       const stats = engine.getStats();
-      spinner.info(
-        `Loaded index with ${stats.totalBlockCount} blocks`,
-      );
+      spinner.info(`Loaded index with ${stats.totalBlockCount} blocks`);
 
       // Create server
       const port = parseInt(options.port ?? '3000', 10);
@@ -130,8 +126,8 @@ export const serveCommand = new Command('serve')
           chalk.dim(
             `  curl -X POST http://${host}:${port}/query \\
     -H "Content-Type: application/json" \\
-    -d '{"code": "function hello() { return \\"world\\"; }"}'`,
-          ),
+    -d '{"code": "function hello() { return \\"world\\"; }"}'`
+          )
         );
 
         console.log('\n' + chalk.dim('Press Ctrl+C to stop the server'));

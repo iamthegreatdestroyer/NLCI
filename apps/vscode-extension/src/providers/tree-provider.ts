@@ -7,7 +7,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import type { CloneResult } from '@nlci/core';
-import { NlciService } from '../services/nlci-service';
+import type { NlciService } from '../services/nlci-service';
 
 /**
  * Tree item representing a clone group or clone instance
@@ -156,7 +156,7 @@ export class CloneTreeProvider implements vscode.TreeDataProvider<CloneTreeItem>
         return bCount - aCount;
       });
     } catch (error) {
-      return [new CloneTreeItem(`Error: ${error}`, vscode.TreeItemCollapsibleState.None)];
+      return [new CloneTreeItem(`Error: ${String(error)}`, vscode.TreeItemCollapsibleState.None)];
     }
   }
 

@@ -131,10 +131,7 @@ export const initCommand = new Command('init')
       } else {
         // Default to .js for maximum compatibility
         configFileName = 'nlci.config.js';
-        configContent = CONFIG_TEMPLATE_TS.replace(
-          'export default',
-          'module.exports =',
-        );
+        configContent = CONFIG_TEMPLATE_TS.replace('export default', 'module.exports =');
       }
 
       const configPath = path.join(cwd, configFileName);
@@ -144,7 +141,7 @@ export const initCommand = new Command('init')
         try {
           await fs.access(configPath);
           spinner.fail(
-            `Configuration file already exists: ${configFileName}. Use --force to overwrite.`,
+            `Configuration file already exists: ${configFileName}. Use --force to overwrite.`
           );
           return;
         } catch {

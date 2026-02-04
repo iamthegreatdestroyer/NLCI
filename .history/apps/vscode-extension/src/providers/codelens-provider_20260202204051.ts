@@ -79,8 +79,7 @@ export class CloneCodeLensProvider implements vscode.CodeLensProvider {
 
         // Count clones at this location
         const clonesAtLine = clones.filter(
-          (c) =>
-            c.source.filePath === filePath && c.source.startLine === clone.source.startLine
+          (c) => c.source.filePath === filePath && c.source.startLine === clone.source.startLine
         );
 
         const range = new vscode.Range(line, 0, line, 0);

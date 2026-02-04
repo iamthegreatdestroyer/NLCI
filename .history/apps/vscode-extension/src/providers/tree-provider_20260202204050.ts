@@ -45,9 +45,7 @@ export class CloneTreeItem extends vscode.TreeItem {
     }
   }
 
-  private getIconForCloneType(
-    cloneType: string
-  ): vscode.ThemeIcon {
+  private getIconForCloneType(cloneType: string): vscode.ThemeIcon {
     switch (cloneType) {
       case 'type-1':
         return new vscode.ThemeIcon('copy', new vscode.ThemeColor('charts.red'));
@@ -66,12 +64,8 @@ export class CloneTreeItem extends vscode.TreeItem {
 /**
  * Tree data provider for code clones
  */
-export class CloneTreeProvider
-  implements vscode.TreeDataProvider<CloneTreeItem>
-{
-  private _onDidChangeTreeData = new vscode.EventEmitter<
-    CloneTreeItem | undefined | null | void
-  >();
+export class CloneTreeProvider implements vscode.TreeDataProvider<CloneTreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<CloneTreeItem | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private clonesByFile: Map<string, CloneResult[]> = new Map();
@@ -152,12 +146,7 @@ export class CloneTreeProvider
       }
 
       if (items.length === 0) {
-        return [
-          new CloneTreeItem(
-            'No clones detected',
-            vscode.TreeItemCollapsibleState.None
-          ),
-        ];
+        return [new CloneTreeItem('No clones detected', vscode.TreeItemCollapsibleState.None)];
       }
 
       // Sort by number of clones (descending)
@@ -167,12 +156,7 @@ export class CloneTreeProvider
         return bCount - aCount;
       });
     } catch (error) {
-      return [
-        new CloneTreeItem(
-          `Error: ${error}`,
-          vscode.TreeItemCollapsibleState.None
-        ),
-      ];
+      return [new CloneTreeItem(`Error: ${error}`, vscode.TreeItemCollapsibleState.None)];
     }
   }
 

@@ -7,7 +7,13 @@ export default defineConfig({
     'engine/index': 'src/engine/index.ts',
   },
   format: ['cjs', 'esm'],
-  dts: true,
+  dts: {
+    resolve: true,
+    compilerOptions: {
+      composite: false,
+      incremental: false,
+    },
+  },
   clean: true,
   sourcemap: true,
   splitting: false,

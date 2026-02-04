@@ -71,29 +71,50 @@ export interface LSHConfig {
    * Prevents hot spots in high-density regions.
    * @default 1000
    */
-  maxBucketSize: number;
+  maxBucketSize?: number;
 
   /**
-   * Whether to use multi-probe LSH for better recall.
+   * Multi-probe LSH configuration for better recall.
    * Probes nearby buckets at query time.
-   * @default true
+   * @default { enabled: true, numProbes: 3 }
    */
-  multiProbe: boolean;
+  multiProbe: MultiProbeConfig;
+}
 
-  /**
-   * Number of probes for multi-probe LSH.
-   * More probes = higher recall, slower queries.
-   * @default 3
-   */
+/**
+ * Multi-probe LSH configuration.
+ */
+export interface MultiProbeConfig {
+  /** Whether multi-probe is enabled */
+  enabled: boolean;
+  /** Number of probes for multi-probe LSH */
   numProbes: number;
 }
+
+/**
+ * Embedding model type.
+ * - 'tfidf': TF-IDF based embeddings (fast, no external dependencies)
+ * - 'onnx': ONNX neural model (requires model file)
+ * - 'mock': Mock embeddings for testing
+ */
+export type EmbeddingModelType = 'tfidf' | 'onnx' | 'mock';
 
 /**
  * Embedding model configuration.
  */
 export interface EmbeddingConfig {
   /**
+   * Type of embedding model to use.
+   * - 'tfidf': Fast TF-IDF based embeddings (recommended for getting started)
+   * - 'onnx': Neural ONNX model (requires model file)
+   * - 'mock': Mock embeddings for testing
+   * @default 'tfidf'
+   */
+  modelType: EmbeddingModelType;
+
+  /**
    * Path to the ONNX model file.
+   * Only used when modelType is 'onnx'.
    * @default './models/code-embedder-small/model.onnx'
    */
   modelPath: string;
@@ -285,10 +306,13 @@ export const DEFAULT_CONFIG: NLCIConfig = {
     dimension: 384,
     seed: undefined,
     maxBucketSize: 1000,
-    multiProbe: true,
-    numProbes: 3,
+    multiProbe: {
+      enabled: true,
+      numProbes: 3,
+    },
   },
   embedding: {
+    modelType: 'tfidf',
     modelPath: './models/code-embedder-small/model.onnx',
     dimension: 384,
     maxSequenceLength: 512,

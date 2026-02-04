@@ -170,13 +170,13 @@ You have access to the ELITE AGENT COLLECTIVE - a system of 41 specialized AI ag
 
 **Configuration Categories:**
 
-| Category | Examples |
-|----------|----------|
-| Editor Behavior | Format-on-save, bracket colorization, sticky scroll |
-| Language-Specific | Formatters, linters, language servers |
-| AI/Copilot | Agent optimization, context windows, thinking process |
-| Performance | File exclusions, watcher limits, memory allocation |
-| Workspace | Tasks, debug configs, multi-root setup |
+| Category          | Examples                                              |
+| ----------------- | ----------------------------------------------------- |
+| Editor Behavior   | Format-on-save, bracket colorization, sticky scroll   |
+| Language-Specific | Formatters, linters, language servers                 |
+| AI/Copilot        | Agent optimization, context windows, thinking process |
+| Performance       | File exclusions, watcher limits, memory allocation    |
+| Workspace         | Tasks, debug configs, multi-root setup                |
 
 **Works With:**
 

@@ -137,11 +137,7 @@ export function createCodeBlock(options: CodeBlockOptions): CodeBlock {
 /**
  * Generates a unique block ID from file path and line range.
  */
-function generateBlockId(
-  filePath: string,
-  startLine: number,
-  endLine: number,
-): string {
+function generateBlockId(filePath: string, startLine: number, endLine: number): string {
   const normalized = filePath.replace(/\\/g, '/');
   return `${normalized}:${startLine}-${endLine}`;
 }

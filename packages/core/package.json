@@ -5,24 +5,24 @@
   "author": "Stevo <sgbilod@gmail.com>",
   "license": "AGPL-3.0-or-later",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./lsh": {
-      "import": "./dist/lsh/index.mjs",
-      "require": "./dist/lsh/index.js",
-      "types": "./dist/lsh/index.d.ts"
+      "types": "./dist/lsh/index.d.ts",
+      "import": "./dist/lsh/index.js",
+      "require": "./dist/lsh/index.cjs"
     },
     "./engine": {
-      "import": "./dist/engine/index.mjs",
-      "require": "./dist/engine/index.js",
-      "types": "./dist/engine/index.d.ts"
+      "types": "./dist/engine/index.d.ts",
+      "import": "./dist/engine/index.js",
+      "require": "./dist/engine/index.cjs"
     }
   },
   "files": [

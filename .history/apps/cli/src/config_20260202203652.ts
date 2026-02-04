@@ -76,7 +76,7 @@ const defaultConfig: Partial<NLCIConfig> = {
  */
 export async function loadConfig(
   searchFrom: string,
-  configPath?: string,
+  configPath?: string
 ): Promise<Partial<NLCIConfig>> {
   let result;
 
@@ -98,7 +98,7 @@ export async function loadConfig(
  */
 function mergeConfig(
   defaults: Partial<NLCIConfig>,
-  overrides: Partial<NLCIConfig>,
+  overrides: Partial<NLCIConfig>
 ): Partial<NLCIConfig> {
   const result: Partial<NLCIConfig> = { ...defaults };
 

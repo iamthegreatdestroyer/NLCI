@@ -15,10 +15,7 @@ export class StatusBarManager implements vscode.Disposable {
   private readonly disposables: vscode.Disposable[] = [];
 
   constructor(private readonly service: NlciService) {
-    this.statusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      100
-    );
+    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 
     this.statusBarItem.command = 'nlci.showStats';
     this.update();

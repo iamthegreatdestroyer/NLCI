@@ -17,15 +17,13 @@
 
 import type { CodeBlock } from '../types/code-block.js';
 import type { LSHConfig } from '../types/config.js';
+import { BucketStore, MemoryStorage, type BucketStorage } from './bucket-store.js';
 import {
-  createHashFunction,
   computeHash,
+  createHashFunction,
   generateProbes,
-  hammingDistance,
-  estimateCosineSimilarity,
   type HyperplaneHashFunction,
 } from './hyperplane.js';
-import { BucketStore, type BucketStorage, MemoryStorage } from './bucket-store.js';
 
 /**
  * Configuration for the LSH index.
@@ -109,6 +107,16 @@ interface BlockMetadata {
 
   /** Hashes for each table */
   hashes: Map<number, bigint>;
+}
+
+/**
+ * Serialized format for block metadata (from JSON).
+ */
+interface SerializedBlockMetadata {
+  id: string;
+  block: CodeBlock;
+  embedding: number[];
+  hashes: [number, string][];
 }
 
 /**
@@ -390,7 +398,7 @@ export class LSHIndex {
     if (!metadataJson) return false;
 
     try {
-      const metadata = JSON.parse(metadataJson);
+      const metadata = JSON.parse(metadataJson) as SerializedBlockMetadata[];
 
       this.blockMetadata.clear();
       for (const item of metadata) {
@@ -418,6 +426,52 @@ export class LSHIndex {
   clear(): void {
     this.bucketStore.clear();
     this.blockMetadata.clear();
+  }
+
+  /**
+   * Exports the index state for serialization.
+   * Unlike save(), this returns the data directly for in-memory transfer.
+   */
+  exportState(): {
+    metadata: SerializedBlockMetadata[];
+    buckets: ReturnType<BucketStore['exportState']>;
+  } {
+    const metadata = Array.from(this.blockMetadata.entries()).map(([id, data]) => ({
+      id,
+      block: data.block,
+      embedding: Array.from(data.embedding),
+      hashes: Array.from(data.hashes.entries()).map(
+        ([ti, h]) => [ti, h.toString()] as [number, string]
+      ),
+    }));
+
+    return {
+      metadata,
+      buckets: this.bucketStore.exportState(),
+    };
+  }
+
+  /**
+   * Imports index state from exported data.
+   * Unlike load(), this accepts data directly for in-memory transfer.
+   */
+  importState(state: { metadata: SerializedBlockMetadata[]; buckets: unknown }): void {
+    this.blockMetadata.clear();
+
+    for (const item of state.metadata) {
+      const hashes = new Map<number, bigint>();
+      for (const [ti, h] of item.hashes) {
+        hashes.set(ti, BigInt(h));
+      }
+
+      this.blockMetadata.set(item.id, {
+        block: item.block,
+        embedding: new Float32Array(item.embedding),
+        hashes,
+      });
+    }
+
+    this.bucketStore.importState(state.buckets as ReturnType<BucketStore['exportState']>);
   }
 
   /**

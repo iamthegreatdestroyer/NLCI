@@ -87,11 +87,7 @@ export class SimpleCodeParser implements CodeParser {
    * Parses source code into code blocks.
    * Uses regex patterns to identify functions, classes, etc.
    */
-  parse(
-    source: string,
-    filePath: string,
-    language: SupportedLanguage,
-  ): ParseResult {
+  parse(source: string, filePath: string, language: SupportedLanguage): ParseResult {
     const start = performance.now();
     const blocks: CodeBlock[] = [];
     const errors: ParseError[] = [];
@@ -150,7 +146,7 @@ export class SimpleCodeParser implements CodeParser {
                   name: currentBlock.name,
                   startLine: currentBlock.startLine,
                   endLine: lineNum,
-                }),
+                })
               );
             }
 
@@ -172,7 +168,7 @@ export class SimpleCodeParser implements CodeParser {
               name: currentBlock.name,
               startLine: currentBlock.startLine,
               endLine: lines.length,
-            }),
+            })
           );
         }
       }
@@ -190,7 +186,7 @@ export class SimpleCodeParser implements CodeParser {
   }
 
   private getPatternsForLanguage(
-    language: SupportedLanguage,
+    language: SupportedLanguage
   ): Array<{ regex: RegExp; type: CodeBlockType }> {
     const common = [
       { regex: /^\s*(?:async\s+)?function\s+(\w+)/, type: 'function' as const },
@@ -202,10 +198,19 @@ export class SimpleCodeParser implements CodeParser {
       case 'javascript':
         return [
           ...common,
-          { regex: /^\s*(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/, type: 'function' as const },
-          { regex: /^\s*(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?function/, type: 'function' as const },
+          {
+            regex: /^\s*(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/,
+            type: 'function' as const,
+          },
+          {
+            regex: /^\s*(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?function/,
+            type: 'function' as const,
+          },
           { regex: /^\s*(\w+)\s*[=:]\s*(?:async\s+)?\([^)]*\)\s*=>/, type: 'function' as const },
-          { regex: /^\s*(?:public|private|protected)?\s*(?:static\s+)?(?:async\s+)?(\w+)\s*\(/, type: 'method' as const },
+          {
+            regex: /^\s*(?:public|private|protected)?\s*(?:static\s+)?(?:async\s+)?(\w+)\s*\(/,
+            type: 'method' as const,
+          },
           { regex: /^\s*interface\s+(\w+)/, type: 'interface' as const },
           { regex: /^\s*type\s+(\w+)/, type: 'type' as const },
         ];
@@ -221,7 +226,10 @@ export class SimpleCodeParser implements CodeParser {
       case 'csharp':
         return [
           ...common,
-          { regex: /^\s*(?:public|private|protected)\s+(?:static\s+)?(?:\w+\s+)?(\w+)\s*\(/, type: 'method' as const },
+          {
+            regex: /^\s*(?:public|private|protected)\s+(?:static\s+)?(?:\w+\s+)?(\w+)\s*\(/,
+            type: 'method' as const,
+          },
           { regex: /^\s*interface\s+(\w+)/, type: 'interface' as const },
         ];
 

@@ -4,9 +4,9 @@
  * Uses cosmiconfig to load NLCI configuration from various file formats.
  */
 
+import type { NLCIConfig } from '@nlci/core';
 import { cosmiconfig } from 'cosmiconfig';
 import path from 'path';
-import type { NLCIConfig } from '@nlci/core';
 
 const explorer = cosmiconfig('nlci', {
   searchPlaces: [
@@ -31,15 +31,27 @@ const defaultConfig: Partial<NLCIConfig> = {
     numTables: 20,
     numBits: 12,
     dimension: 384,
+    multiProbe: {
+      enabled: true,
+      numProbes: 3,
+    },
   },
   embedding: {
-    model: 'sentence-transformers/all-MiniLM-L6-v2',
+    modelType: 'onnx',
+    modelPath: './models/code-embedder-small/model.onnx',
+    dimension: 384,
+    maxSequenceLength: 512,
     batchSize: 32,
-    maxLength: 512,
+    useGPU: true,
+    normalize: true,
   },
   parser: {
+    languages: [],
     minBlockSize: 10,
     maxBlockSize: 10000,
+    extractFunctions: true,
+    extractClasses: true,
+    extractBlocks: false,
     includePatterns: [
       '**/*.ts',
       '**/*.tsx',
@@ -90,7 +102,7 @@ export async function loadConfig(
     return defaultConfig;
   }
 
-  return mergeConfig(defaultConfig, result.config);
+  return mergeConfig(defaultConfig, result.config as Partial<NLCIConfig>);
 }
 
 /**

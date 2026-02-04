@@ -50,9 +50,7 @@ export function deepClone<T>(obj: T): T {
   }
 
   if (obj instanceof Map) {
-    return new Map(
-      Array.from(obj.entries()).map(([k, v]) => [deepClone(k), deepClone(v)]),
-    ) as T;
+    return new Map(Array.from(obj.entries()).map(([k, v]) => [deepClone(k), deepClone(v)])) as T;
   }
 
   if (obj instanceof Set) {
@@ -94,7 +92,7 @@ export function deepMerge<T extends Record<string, unknown>>(
         ) {
           (result as Record<string, unknown>)[key] = deepMerge(
             targetValue as Record<string, unknown>,
-            sourceValue as Record<string, unknown>,
+            sourceValue as Record<string, unknown>
           );
         } else if (sourceValue !== undefined) {
           (result as Record<string, unknown>)[key] = deepClone(sourceValue);
@@ -111,7 +109,7 @@ export function deepMerge<T extends Record<string, unknown>>(
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
-  delay: number,
+  delay: number
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -130,7 +128,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
-  limit: number,
+  limit: number
 ): (...args: Parameters<T>) => void {
   let lastCall = 0;
 
@@ -153,14 +151,9 @@ export async function retry<T>(
     baseDelay?: number;
     maxDelay?: number;
     shouldRetry?: (error: unknown) => boolean;
-  } = {},
+  } = {}
 ): Promise<T> {
-  const {
-    maxRetries = 3,
-    baseDelay = 100,
-    maxDelay = 10000,
-    shouldRetry = () => true,
-  } = options;
+  const { maxRetries = 3, baseDelay = 100, maxDelay = 10000, shouldRetry = () => true } = options;
 
   let lastError: unknown;
 
@@ -198,7 +191,7 @@ export function chunk<T>(array: T[], size: number): T[][] {
  */
 export function groupBy<T, K extends string | number | symbol>(
   array: T[],
-  keyFn: (item: T) => K,
+  keyFn: (item: T) => K
 ): Record<K, T[]> {
   const groups = {} as Record<K, T[]>;
   for (const item of array) {
@@ -236,7 +229,7 @@ export function deferred<T>(): Deferred<T> {
  * Measures execution time of a function.
  */
 export async function measureTime<T>(
-  fn: () => Promise<T>,
+  fn: () => Promise<T>
 ): Promise<{ result: T; duration: number }> {
   const start = performance.now();
   const result = await fn();

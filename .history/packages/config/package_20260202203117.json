@@ -11,19 +11,8 @@
     "./eslint/library": "./eslint/library.js",
     "./prettier": "./prettier/index.js"
   },
-  "files": [
-    "typescript",
-    "eslint",
-    "prettier",
-    "README.md"
-  ],
-  "keywords": [
-    "nlci",
-    "config",
-    "typescript",
-    "eslint",
-    "prettier"
-  ],
+  "files": ["typescript", "eslint", "prettier", "README.md"],
+  "keywords": ["nlci", "config", "typescript", "eslint", "prettier"],
   "author": "",
   "license": "AGPL-3.0-or-later",
   "repository": {

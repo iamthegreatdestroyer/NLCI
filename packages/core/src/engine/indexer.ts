@@ -11,7 +11,6 @@ import {
   type SupportedLanguage,
   createCodeBlock,
 } from '../types/code-block.js';
-import type { NLCIConfig } from '../types/config.js';
 
 /**
  * Result of parsing a source file.
@@ -45,8 +44,8 @@ export interface ParseError {
  * Interface for code parsers.
  */
 export interface CodeParser {
-  /** Parse source code into blocks */
-  parse(source: string, filePath: string, language: SupportedLanguage): ParseResult;
+  /** Parse source code into blocks (language inferred from filePath if not provided) */
+  parse(source: string, filePath: string, language?: SupportedLanguage): ParseResult;
 
   /** Supported languages */
   readonly supportedLanguages: readonly SupportedLanguage[];
@@ -87,14 +86,17 @@ export class SimpleCodeParser implements CodeParser {
    * Parses source code into code blocks.
    * Uses regex patterns to identify functions, classes, etc.
    */
-  parse(source: string, filePath: string, language: SupportedLanguage): ParseResult {
+  parse(source: string, filePath: string, language?: SupportedLanguage): ParseResult {
     const start = performance.now();
     const blocks: CodeBlock[] = [];
     const errors: ParseError[] = [];
 
+    // Infer language from file extension if not provided
+    const lang = language ?? getLanguageForFile(filePath) ?? 'typescript';
+
     try {
       // Split by common block patterns
-      const patterns = this.getPatternsForLanguage(language);
+      const patterns = this.getPatternsForLanguage(lang);
       const lines = source.split('\n');
 
       // Track brace/bracket depth for block detection
@@ -104,34 +106,102 @@ export class SimpleCodeParser implements CodeParser {
         startLine: number;
         content: string[];
         depth: number;
+        initialDepth: number;
       } | null = null;
+
+      // For Python, track indentation-based blocks
+      let pythonBaseIndent = -1;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         const lineNum = i + 1;
+        const trimmedLine = line.trim();
 
-        // Check for block start patterns
-        for (const pattern of patterns) {
-          const match = line.match(pattern.regex);
-          if (match && !currentBlock) {
-            currentBlock = {
-              type: pattern.type,
-              name: match[1] || `anonymous_${lineNum}`,
-              startLine: lineNum,
-              content: [line],
-              depth: this.countBraces(line, language),
-            };
-            break;
+        // Check for block start patterns (only when not in a block)
+        if (!currentBlock) {
+          for (const pattern of patterns) {
+            const match = line.match(pattern.regex);
+            if (match) {
+              const initialDepth = this.countBraces(line, lang);
+
+              // Handle single-line blocks (e.g., `function foo() { return 1; }`)
+              if (
+                lang !== 'python' &&
+                initialDepth <= 0 &&
+                line.includes('{') &&
+                line.includes('}')
+              ) {
+                // This is a complete single-line block
+                if (line.trim().length >= 20) {
+                  blocks.push(
+                    createCodeBlock({
+                      content: line,
+                      filePath,
+                      language: lang,
+                      type: pattern.type,
+                      name: match[1] || `anonymous_${lineNum}`,
+                      startLine: lineNum,
+                      endLine: lineNum,
+                    })
+                  );
+                }
+                break; // Don't start tracking, block is complete
+              }
+
+              currentBlock = {
+                type: pattern.type,
+                name: match[1] || `anonymous_${lineNum}`,
+                startLine: lineNum,
+                content: [line],
+                depth: initialDepth,
+                initialDepth: initialDepth,
+              };
+
+              // For Python, track the base indentation
+              if (lang === 'python') {
+                pythonBaseIndent = line.search(/\S/);
+                if (pythonBaseIndent < 0) pythonBaseIndent = 0;
+              }
+              break;
+            }
           }
+          continue; // Move to next line after starting a block
         }
 
-        if (currentBlock) {
-          if (currentBlock.content.length > 1) {
-            currentBlock.content.push(line);
+        // We're inside a block, process line
+        if (lang === 'python') {
+          // Python: end block when we return to base indentation or less
+          const currentIndent = line.search(/\S/);
+          if (trimmedLine.length > 0 && currentIndent >= 0 && currentIndent <= pythonBaseIndent) {
+            // End of Python block (don't include this line)
+            const content = currentBlock.content.join('\n');
+            if (content.trim().length >= 20) {
+              blocks.push(
+                createCodeBlock({
+                  content,
+                  filePath,
+                  language: lang,
+                  type: currentBlock.type,
+                  name: currentBlock.name,
+                  startLine: currentBlock.startLine,
+                  endLine: lineNum - 1,
+                })
+              );
+            }
+            currentBlock = null;
+            pythonBaseIndent = -1;
+            // Re-check this line for a new block start
+            i--;
+            continue;
           }
-          currentBlock.depth += this.countBraces(line, language);
+          // Still in block, add line
+          currentBlock.content.push(line);
+        } else {
+          // Brace-based languages
+          currentBlock.content.push(line);
+          currentBlock.depth += this.countBraces(line, lang);
 
-          // Check if block is complete
+          // Check if block is complete (depth returns to 0 or below)
           if (currentBlock.depth <= 0 && currentBlock.content.length > 1) {
             const content = currentBlock.content.join('\n');
 
@@ -141,7 +211,7 @@ export class SimpleCodeParser implements CodeParser {
                 createCodeBlock({
                   content,
                   filePath,
-                  language,
+                  language: lang,
                   type: currentBlock.type,
                   name: currentBlock.name,
                   startLine: currentBlock.startLine,
@@ -163,7 +233,7 @@ export class SimpleCodeParser implements CodeParser {
             createCodeBlock({
               content,
               filePath,
-              language,
+              language: lang,
               type: currentBlock.type,
               name: currentBlock.name,
               startLine: currentBlock.startLine,
@@ -189,8 +259,11 @@ export class SimpleCodeParser implements CodeParser {
     language: SupportedLanguage
   ): Array<{ regex: RegExp; type: CodeBlockType }> {
     const common = [
-      { regex: /^\s*(?:async\s+)?function\s+(\w+)/, type: 'function' as const },
-      { regex: /^\s*class\s+(\w+)/, type: 'class' as const },
+      {
+        regex: /^\s*(?:export\s+)?(?:export\s+default\s+)?(?:async\s+)?function\s+(\w+)/,
+        type: 'function' as const,
+      },
+      { regex: /^\s*(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/, type: 'class' as const },
     ];
 
     switch (language) {

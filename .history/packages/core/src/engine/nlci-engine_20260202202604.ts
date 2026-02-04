@@ -99,7 +99,7 @@ export class NLCIEngine {
     dependencies?: {
       parser?: CodeParser;
       embeddingModel?: EmbeddingModel;
-    },
+    }
   ) {
     this.config = mergeConfig(config);
 
@@ -117,8 +117,7 @@ export class NLCIEngine {
 
     // Initialize embedding model (use injected or mock)
     this.embeddingModel =
-      dependencies?.embeddingModel ??
-      new MockEmbeddingModel(this.config.lsh.dimension);
+      dependencies?.embeddingModel ?? new MockEmbeddingModel(this.config.lsh.dimension);
 
     // Initialize query engine
     this.queryEngine = new QueryEngine(this.index, this.embeddingModel);
@@ -135,7 +134,7 @@ export class NLCIEngine {
   async indexCode(
     code: string,
     filePath: string,
-    language?: SupportedLanguage,
+    language?: SupportedLanguage
   ): Promise<CodeBlock[]> {
     const lang = language ?? getLanguageForFile(filePath) ?? 'typescript';
 
@@ -178,10 +177,7 @@ export class NLCIEngine {
    * @param options - Query options
    * @returns Query result with similar blocks
    */
-  async query(
-    code: string,
-    options?: Partial<QueryOptions>,
-  ): Promise<QueryResult> {
+  async query(code: string, options?: Partial<QueryOptions>): Promise<QueryResult> {
     return this.queryEngine.query(code, options);
   }
 
@@ -192,10 +188,7 @@ export class NLCIEngine {
    * @param options - Query options
    * @returns Query result with similar blocks
    */
-  async findSimilar(
-    blockId: string,
-    options?: Partial<QueryOptions>,
-  ): Promise<QueryResult> {
+  async findSimilar(blockId: string, options?: Partial<QueryOptions>): Promise<QueryResult> {
     return this.queryEngine.querySimilar(blockId, options);
   }
 
@@ -205,9 +198,7 @@ export class NLCIEngine {
    * @param options - Query options
    * @returns Array of clone clusters
    */
-  async findAllClones(
-    options?: Partial<QueryOptions>,
-  ): Promise<CloneCluster[]> {
+  async findAllClones(options?: Partial<QueryOptions>): Promise<CloneCluster[]> {
     return this.queryEngine.findAllClones(options);
   }
 
@@ -236,10 +227,7 @@ export class NLCIEngine {
     const files = new Set(blocks.map((b) => b.filePath));
 
     // Calculate total lines
-    const totalLines = blocks.reduce(
-      (sum, b) => sum + (b.endLine - b.startLine + 1),
-      0,
-    );
+    const totalLines = blocks.reduce((sum, b) => sum + (b.endLine - b.startLine + 1), 0);
 
     // Calculate clone lines
     const cloneBlocks = new Set<string>();

@@ -28,31 +28,26 @@ Systematic literature review, research gap identification, and academic knowledg
 ### Phases
 
 1. **Scoping**
-
    - Define research question
    - Identify search terms
    - Set inclusion/exclusion criteria
 
 2. **Search**
-
    - Query multiple databases
    - Screen titles/abstracts
    - Document search results
 
 3. **Screening**
-
    - Full-text review
    - Assess quality/bias
    - Extract data
 
 4. **Synthesis**
-
    - Tabulate findings
    - Narrative summary
    - Meta-analysis (if applicable)
 
 5. **Evaluation**
-
    - Quality assessment
    - Certainty of evidence
    - Publication bias detection

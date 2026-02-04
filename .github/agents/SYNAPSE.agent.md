@@ -208,7 +208,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: User found
 ```
 

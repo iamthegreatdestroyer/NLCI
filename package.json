@@ -40,7 +40,13 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky install",
     "release": "changeset publish",
-    "version": "changeset version"
+    "version": "changeset version",
+    "docs": "typedoc",
+    "docs:dev": "docusaurus start",
+    "docs:build": "docusaurus build",
+    "docs:serve": "docusaurus serve",
+    "docs:clear": "docusaurus clear",
+    "docs:deploy": "docusaurus deploy"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",

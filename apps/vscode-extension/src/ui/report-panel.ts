@@ -26,7 +26,7 @@ export function showCloneReport(context: vscode.ExtensionContext, clones: CloneR
 
   // Handle messages from the webview
   panel.webview.onDidReceiveMessage(
-    async (message) => {
+    async (message: { command: string; filePath?: string; line?: number }) => {
       if (message.command === 'navigate') {
         await vscode.commands.executeCommand(
           'nlci.navigateToClone',

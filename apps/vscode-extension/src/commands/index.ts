@@ -5,9 +5,9 @@
  */
 
 import * as vscode from 'vscode';
-import { NlciService } from '../services/nlci-service';
-import { CloneTreeProvider } from '../providers/tree-provider';
-import { CloneDiagnosticsProvider } from '../providers/diagnostics-provider';
+import type { NlciService } from '../services/nlci-service';
+import type { CloneTreeProvider } from '../providers/tree-provider';
+import type { CloneDiagnosticsProvider } from '../providers/diagnostics-provider';
 import { showCloneReport } from '../ui/report-panel';
 
 /**
@@ -47,7 +47,7 @@ export function registerCommands(
 
     // Open settings command
     vscode.commands.registerCommand('nlci.openSettings', () => {
-      vscode.commands.executeCommand('workbench.action.openSettings', '@ext:nlci.nlci-vscode');
+      void vscode.commands.executeCommand('workbench.action.openSettings', '@ext:nlci.nlci-vscode');
     }),
 
     // Navigate to clone command (internal)
@@ -90,9 +90,9 @@ async function scanWorkspace(
         treeProvider.refresh();
         diagnosticsProvider.refresh();
 
-        vscode.window.showInformationMessage('NLCI: Workspace scan complete!');
+        void vscode.window.showInformationMessage('NLCI: Workspace scan complete!');
       } catch (error) {
-        vscode.window.showErrorMessage(`NLCI: Scan failed: ${error}`);
+        void vscode.window.showErrorMessage(`NLCI: Scan failed: ${String(error)}`);
       }
     }
   );
@@ -104,19 +104,19 @@ async function scanWorkspace(
 async function findSimilarCode(service: NlciService): Promise<void> {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
-    vscode.window.showWarningMessage('NLCI: No active editor');
+    void vscode.window.showWarningMessage('NLCI: No active editor');
     return;
   }
 
   const selection = editor.selection;
   if (selection.isEmpty) {
-    vscode.window.showWarningMessage('NLCI: Please select some code first');
+    void vscode.window.showWarningMessage('NLCI: Please select some code first');
     return;
   }
 
   const selectedText = editor.document.getText(selection);
   if (selectedText.trim().length < 10) {
-    vscode.window.showWarningMessage('NLCI: Please select a larger code block');
+    void vscode.window.showWarningMessage('NLCI: Please select a larger code block');
     return;
   }
 
@@ -124,7 +124,7 @@ async function findSimilarCode(service: NlciService): Promise<void> {
     const results = await service.findSimilar(selectedText, editor.document.uri.fsPath);
 
     if (results.length === 0) {
-      vscode.window.showInformationMessage('NLCI: No similar code found');
+      void vscode.window.showInformationMessage('NLCI: No similar code found');
       return;
     }
 
@@ -150,7 +150,7 @@ async function findSimilarCode(service: NlciService): Promise<void> {
       );
     }
   } catch (error) {
-    vscode.window.showErrorMessage(`NLCI: Find similar failed: ${error}`);
+    void vscode.window.showErrorMessage(`NLCI: Find similar failed: ${String(error)}`);
   }
 }
 
@@ -165,13 +165,13 @@ async function showAllClones(
     const clones = await service.getAllClones();
 
     if (clones.length === 0) {
-      vscode.window.showInformationMessage('NLCI: No clones detected');
+      void vscode.window.showInformationMessage('NLCI: No clones detected');
       return;
     }
 
     showCloneReport(context, clones);
   } catch (error) {
-    vscode.window.showErrorMessage(`NLCI: Failed to get clones: ${error}`);
+    void vscode.window.showErrorMessage(`NLCI: Failed to get clones: ${String(error)}`);
   }
 }
 
@@ -194,7 +194,7 @@ async function clearIndex(
     await service.clearIndex();
     treeProvider.refresh();
     diagnosticsProvider.clear();
-    vscode.window.showInformationMessage('NLCI: Index cleared');
+    void vscode.window.showInformationMessage('NLCI: Index cleared');
   }
 }
 
@@ -205,23 +205,24 @@ async function showStatistics(service: NlciService): Promise<void> {
   const stats = service.getStats();
 
   if (!stats) {
-    vscode.window.showWarningMessage('NLCI: No index available. Please scan the workspace first.');
+    void vscode.window.showWarningMessage(
+      'NLCI: No index available. Please scan the workspace first.'
+    );
     return;
   }
-
-  const languages = Object.entries(stats.languages)
-    .map(([lang, count]) => `${lang}: ${count}`)
-    .join('\n');
 
   const message = `
 NLCI Index Statistics
 
-Total Files: ${stats.totalFiles}
 Total Code Blocks: ${stats.totalBlocks}
-Last Updated: ${stats.lastUpdated.toLocaleString()}
+Total Buckets: ${stats.totalBuckets}
+Load Factor: ${(stats.loadFactor * 100).toFixed(1)}%
+Average Bucket Size: ${stats.avgBucketSize.toFixed(2)}
 
-Languages:
-${languages}
+LSH Configuration:
+- Hash Tables: ${stats.numTables}
+- Hash Bits: ${stats.numBits}
+- Dimension: ${stats.dimension}
   `.trim();
 
   const doc = await vscode.workspace.openTextDocument({

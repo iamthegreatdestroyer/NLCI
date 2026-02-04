@@ -16,7 +16,7 @@ import { NLCIEngine } from '@nlci/core';
 import { formatBytes, formatDuration } from '@nlci/shared';
 
 import { loadConfig } from '../config.js';
-import { resolveGlobs, getRelativePath } from '../utils/paths.js';
+import { getRelativePath } from '../utils/paths.js';
 
 interface ScanOptions {
   output?: string;
@@ -103,12 +103,12 @@ export const scanCommand = new Command('scan')
           const content = await fs.readFile(file, 'utf-8');
           totalBytes += Buffer.byteLength(content);
 
-          const summary = await engine.indexCode(content, file);
-          totalBlocks += summary.totalBlocks;
+          const indexedBlocks = await engine.indexCode(content, file);
+          totalBlocks += indexedBlocks.length;
           processedFiles++;
 
           if (options.verbose) {
-            spinner.info(`  ${relativePath}: ${summary.totalBlocks} blocks`);
+            spinner.info(`  ${relativePath}: ${indexedBlocks.length} blocks`);
           }
         } catch (error) {
           if (options.verbose) {
@@ -122,7 +122,7 @@ export const scanCommand = new Command('scan')
 
       // Save index
       spinner.text = 'Saving index...';
-      await engine.save(indexPath);
+      await engine.save();
 
       // Get stats
       const stats = engine.getStats();
@@ -133,7 +133,7 @@ export const scanCommand = new Command('scan')
       console.log('\n' + chalk.bold('Summary:'));
       console.log(`  Files scanned:  ${processedFiles}`);
       console.log(`  Code blocks:    ${totalBlocks}`);
-      console.log(`  Unique hashes:  ${stats.uniqueBlockCount}`);
+      console.log(`  Unique hashes:  ${stats.totalBlocks}`);
       console.log(`  Data processed: ${formatBytes(totalBytes)}`);
       console.log(`  Duration:       ${formatDuration(duration)}`);
       console.log(`  Index saved to: ${indexPath}`);
@@ -148,15 +148,18 @@ function mergeOptions(config: Partial<NLCIConfig>, options: ScanOptions): Partia
   return {
     ...config,
     parser: {
-      ...config.parser,
+      languages: config.parser?.languages ?? [],
+      extractFunctions: config.parser?.extractFunctions ?? true,
+      extractClasses: config.parser?.extractClasses ?? true,
+      extractBlocks: config.parser?.extractBlocks ?? false,
       minBlockSize: options.minTokens
         ? parseInt(options.minTokens, 10)
-        : config.parser?.minBlockSize,
+        : (config.parser?.minBlockSize ?? 10),
       maxBlockSize: options.maxTokens
         ? parseInt(options.maxTokens, 10)
-        : config.parser?.maxBlockSize,
-      includePatterns: options.include ?? config.parser?.includePatterns,
-      excludePatterns: options.exclude ?? config.parser?.excludePatterns,
+        : (config.parser?.maxBlockSize ?? 10000),
+      includePatterns: options.include ?? config.parser?.includePatterns ?? [],
+      excludePatterns: options.exclude ?? config.parser?.excludePatterns ?? [],
     },
   };
 }

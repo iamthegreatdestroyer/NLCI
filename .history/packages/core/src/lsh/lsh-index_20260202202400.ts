@@ -136,16 +136,14 @@ export class LSHIndex {
     this.hashFunctions = [];
     for (let i = 0; i < this.config.numTables; i++) {
       const seed = this.config.seed + i * 1000;
-      this.hashFunctions.push(
-        createHashFunction(this.config.numBits, this.config.dimension, seed),
-      );
+      this.hashFunctions.push(createHashFunction(this.config.numBits, this.config.dimension, seed));
     }
 
     // Create bucket store
     this.bucketStore = new BucketStore(
       this.config.numTables,
       this.config.maxBucketSize,
-      this.config.storage,
+      this.config.storage
     );
   }
 
@@ -161,15 +159,13 @@ export class LSHIndex {
   insert(block: CodeBlock, embedding: Float32Array | number[]): boolean {
     if (embedding.length !== this.config.dimension) {
       throw new Error(
-        `Embedding dimension ${embedding.length} does not match index dimension ${this.config.dimension}`,
+        `Embedding dimension ${embedding.length} does not match index dimension ${this.config.dimension}`
       );
     }
 
     // Convert to Float32Array if needed
     const embeddingArray =
-      embedding instanceof Float32Array
-        ? embedding
-        : new Float32Array(embedding);
+      embedding instanceof Float32Array ? embedding : new Float32Array(embedding);
 
     // Compute hashes and insert into each table
     const hashes = new Map<number, bigint>();
@@ -213,24 +209,18 @@ export class LSHIndex {
       maxResults?: number;
       minSimilarity?: number;
       computeActualSimilarity?: boolean;
-    } = {},
+    } = {}
   ): LSHQueryResult[] {
-    const {
-      maxResults = 50,
-      minSimilarity = 0.7,
-      computeActualSimilarity = true,
-    } = options;
+    const { maxResults = 50, minSimilarity = 0.7, computeActualSimilarity = true } = options;
 
     if (embedding.length !== this.config.dimension) {
       throw new Error(
-        `Embedding dimension ${embedding.length} does not match index dimension ${this.config.dimension}`,
+        `Embedding dimension ${embedding.length} does not match index dimension ${this.config.dimension}`
       );
     }
 
     const embeddingArray =
-      embedding instanceof Float32Array
-        ? embedding
-        : new Float32Array(embedding);
+      embedding instanceof Float32Array ? embedding : new Float32Array(embedding);
 
     // Compute hashes and probes for each table
     const hashesPerTable = new Map<number, readonly bigint[]>();
@@ -239,11 +229,7 @@ export class LSHIndex {
       const hash = computeHash(embeddingArray, this.hashFunctions[i]);
 
       if (this.config.multiProbe.enabled) {
-        const probes = generateProbes(
-          hash,
-          this.config.numBits,
-          this.config.multiProbe.numProbes,
-        );
+        const probes = generateProbes(hash, this.config.numBits, this.config.multiProbe.numProbes);
         hashesPerTable.set(i, probes);
       } else {
         hashesPerTable.set(i, [hash]);
@@ -268,10 +254,7 @@ export class LSHIndex {
       if (computeActualSimilarity) {
         const metadata = this.blockMetadata.get(block.id);
         if (metadata) {
-          actualSimilarity = this.cosineSimilarity(
-            embeddingArray,
-            metadata.embedding,
-          );
+          actualSimilarity = this.cosineSimilarity(embeddingArray, metadata.embedding);
 
           // Skip if actual similarity is below threshold
           if (actualSimilarity < minSimilarity) continue;
@@ -370,7 +353,8 @@ export class LSHIndex {
       numBits: this.config.numBits,
       dimension: this.config.dimension,
       totalBlocks: this.blockMetadata.size,
-      avgBucketSize: storeStats.avgBlocksPerTable / Math.max(storeStats.totalBuckets / storeStats.numTables, 1),
+      avgBucketSize:
+        storeStats.avgBlocksPerTable / Math.max(storeStats.totalBuckets / storeStats.numTables, 1),
       totalBuckets: storeStats.totalBuckets,
       loadFactor: storeStats.avgBlocksPerTable,
     };
@@ -383,17 +367,12 @@ export class LSHIndex {
     await this.bucketStore.save();
 
     // Save metadata separately
-    const metadata = Array.from(this.blockMetadata.entries()).map(
-      ([id, data]) => ({
-        id,
-        block: data.block,
-        embedding: Array.from(data.embedding),
-        hashes: Array.from(data.hashes.entries()).map(([ti, h]) => [
-          ti,
-          h.toString(),
-        ]),
-      }),
-    );
+    const metadata = Array.from(this.blockMetadata.entries()).map(([id, data]) => ({
+      id,
+      block: data.block,
+      embedding: Array.from(data.embedding),
+      hashes: Array.from(data.hashes.entries()).map(([ti, h]) => [ti, h.toString()]),
+    }));
 
     const storage = this.config.storage;
     await storage.save('lsh-metadata', JSON.stringify(metadata));

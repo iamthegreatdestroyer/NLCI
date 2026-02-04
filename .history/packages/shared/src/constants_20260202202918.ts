@@ -31,7 +31,7 @@ export const SIMILARITY_THRESHOLDS = {
   TYPE_1: 0.99,
   TYPE_2: 0.95,
   TYPE_3: 0.85,
-  TYPE_4: 0.70,
+  TYPE_4: 0.7,
 } as const;
 
 /**

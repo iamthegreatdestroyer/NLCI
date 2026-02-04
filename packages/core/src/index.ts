@@ -36,3 +36,6 @@ export * from './lsh/index.js';
 
 // Engine
 export * from './engine/index.js';
+
+// Embeddings
+export * from './embeddings/index.js';

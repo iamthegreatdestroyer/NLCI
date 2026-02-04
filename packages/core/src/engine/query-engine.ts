@@ -4,16 +4,16 @@
  * High-level query interface for finding code clones and similar code.
  */
 
-import type { CodeBlock } from '../types/code-block.js';
+import type { LSHIndex, LSHQueryResult } from '../lsh/lsh-index.js';
 import type {
+  CloneCluster,
   CloneResult,
-  QueryResult,
   CloneType,
   QueryOptions,
-  CloneCluster,
+  QueryResult,
 } from '../types/clone-result.js';
 import { DEFAULT_QUERY_OPTIONS } from '../types/clone-result.js';
-import { LSHIndex, type LSHQueryResult } from '../lsh/lsh-index.js';
+import type { CodeBlock } from '../types/code-block.js';
 import type { EmbeddingModel } from './indexer.js';
 
 /**
@@ -261,7 +261,7 @@ export class QueryEngine {
     for (const candidate of candidates) {
       const similarity = candidate.actualSimilarity ?? candidate.estimatedSimilarity;
 
-      if (similarity < options.minSimilarity) continue;
+      if (similarity < (options.minSimilarity ?? 0.8)) continue;
 
       // Classify clone type
       const cloneType = this.classifyCloneTypeBySimilarity(similarity);
@@ -302,7 +302,7 @@ export class QueryEngine {
    */
   private classifyCloneType(source: CodeBlock, target: CodeBlock, similarity: number): CloneType {
     // Check for exact match (Type-1)
-    if (source.normalizedHash === target.normalizedHash) {
+    if (source.contentHash === target.contentHash) {
       return 'type-1';
     }
 

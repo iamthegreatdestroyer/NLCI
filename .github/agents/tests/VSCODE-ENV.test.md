@@ -2,13 +2,13 @@
 
 ## Agent Under Test
 
-| Attribute | Value |
-|-----------|-------|
-| **Agent** | @VSCODE-ENV |
-| **Tier** | 0 (Infrastructure) |
-| **ID** | 00 |
-| **Version** | 1.0.0 |
-| **Last Updated** | 2025-02-03 |
+| Attribute        | Value              |
+| ---------------- | ------------------ |
+| **Agent**        | @VSCODE-ENV        |
+| **Tier**         | 0 (Infrastructure) |
+| **ID**           | 00                 |
+| **Version**      | 1.0.0              |
+| **Last Updated** | 2025-02-03         |
 
 ---
 
@@ -18,13 +18,13 @@ This test suite validates the @VSCODE-ENV agent's ability to analyze projects, g
 
 ### Test Distribution
 
-| Tier | Category | Test Count | Focus Area |
-|------|----------|------------|------------|
-| 1 | Foundation | 25 | Basic detection, file generation, format validation |
-| 2 | Intermediate | 30 | Multi-language, monorepo, conflict resolution |
-| 3 | Advanced | 25 | Complex scenarios, performance optimization, agent integration |
-| 4 | Extreme | 20 | Edge cases, recovery, massive scale, adversarial inputs |
-| **Total** | | **100** | |
+| Tier      | Category     | Test Count | Focus Area                                                     |
+| --------- | ------------ | ---------- | -------------------------------------------------------------- |
+| 1         | Foundation   | 25         | Basic detection, file generation, format validation            |
+| 2         | Intermediate | 30         | Multi-language, monorepo, conflict resolution                  |
+| 3         | Advanced     | 25         | Complex scenarios, performance optimization, agent integration |
+| 4         | Extreme      | 20         | Edge cases, recovery, massive scale, adversarial inputs        |
+| **Total** |              | **100**    |                                                                |
 
 ---
 
@@ -33,9 +33,10 @@ This test suite validates the @VSCODE-ENV agent's ability to analyze projects, g
 ### Category 1.1: Stack Detection (10 tests)
 
 #### FND-001: Detect Node.js/TypeScript Project
+
 ```yaml
 test_id: FND-001
-name: "Detect Node.js/TypeScript Project"
+name: 'Detect Node.js/TypeScript Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -44,12 +45,12 @@ input:
     - tsconfig.json
     - src/index.ts
 expected:
-  detected_stack: ["nodejs", "typescript"]
+  detected_stack: ['nodejs', 'typescript']
   recommended_extensions:
     - dbaeumer.vscode-eslint
     - esbenp.prettier-vscode
   settings:
-    - typescript.tsdk: "node_modules/typescript/lib"
+    - typescript.tsdk: 'node_modules/typescript/lib'
 validation:
   - Stack correctly identified
   - TypeScript-specific settings generated
@@ -57,9 +58,10 @@ validation:
 ```
 
 #### FND-002: Detect Python Project
+
 ```yaml
 test_id: FND-002
-name: "Detect Python Project"
+name: 'Detect Python Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -68,21 +70,22 @@ input:
     - src/main.py
     - tests/test_main.py
 expected:
-  detected_stack: ["python"]
+  detected_stack: ['python']
   recommended_extensions:
     - ms-python.python
     - ms-python.vscode-pylance
   settings:
-    - "[python].editor.defaultFormatter": "ms-python.black-formatter"
+    - '[python].editor.defaultFormatter': 'ms-python.black-formatter'
 validation:
   - Python detected from requirements.txt
   - Python-specific formatter configured
 ```
 
 #### FND-003: Detect Rust Project
+
 ```yaml
 test_id: FND-003
-name: "Detect Rust Project"
+name: 'Detect Rust Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -91,20 +94,21 @@ input:
     - src/main.rs
     - src/lib.rs
 expected:
-  detected_stack: ["rust"]
+  detected_stack: ['rust']
   recommended_extensions:
     - rust-lang.rust-analyzer
   settings:
-    - "rust-analyzer.checkOnSave.command": "clippy"
+    - 'rust-analyzer.checkOnSave.command': 'clippy'
 validation:
   - Rust detected from Cargo.toml
   - rust-analyzer configured
 ```
 
 #### FND-004: Detect Go Project
+
 ```yaml
 test_id: FND-004
-name: "Detect Go Project"
+name: 'Detect Go Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -113,7 +117,7 @@ input:
     - main.go
     - internal/handler.go
 expected:
-  detected_stack: ["go"]
+  detected_stack: ['go']
   recommended_extensions:
     - golang.go
 validation:
@@ -121,9 +125,10 @@ validation:
 ```
 
 #### FND-005: Detect Java Maven Project
+
 ```yaml
 test_id: FND-005
-name: "Detect Java Maven Project"
+name: 'Detect Java Maven Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -131,16 +136,17 @@ input:
     - pom.xml
     - src/main/java/App.java
 expected:
-  detected_stack: ["java", "maven"]
+  detected_stack: ['java', 'maven']
 validation:
   - Java detected
   - Maven build system identified
 ```
 
 #### FND-006: Detect .NET Project
+
 ```yaml
 test_id: FND-006
-name: "Detect .NET Project"
+name: 'Detect .NET Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -148,15 +154,16 @@ input:
     - MyApp.csproj
     - Program.cs
 expected:
-  detected_stack: ["dotnet", "csharp"]
+  detected_stack: ['dotnet', 'csharp']
 validation:
   - .NET detected from .csproj
 ```
 
 #### FND-007: Detect React Project
+
 ```yaml
 test_id: FND-007
-name: "Detect React Project"
+name: 'Detect React Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -165,18 +172,19 @@ input:
     - src/App.tsx
     - src/index.tsx
 expected:
-  detected_stack: ["nodejs", "typescript", "react"]
+  detected_stack: ['nodejs', 'typescript', 'react']
   settings:
-    - "emmet.includeLanguages.typescriptreact": "html"
+    - 'emmet.includeLanguages.typescriptreact': 'html'
 validation:
   - React framework detected
   - TSX file associations correct
 ```
 
 #### FND-008: Detect Vue Project
+
 ```yaml
 test_id: FND-008
-name: "Detect Vue Project"
+name: 'Detect Vue Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -185,7 +193,7 @@ input:
     - src/App.vue
     - vite.config.ts
 expected:
-  detected_stack: ["nodejs", "typescript", "vue"]
+  detected_stack: ['nodejs', 'typescript', 'vue']
   recommended_extensions:
     - Vue.volar
 validation:
@@ -193,9 +201,10 @@ validation:
 ```
 
 #### FND-009: Detect Docker Project
+
 ```yaml
 test_id: FND-009
-name: "Detect Docker Project"
+name: 'Detect Docker Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -203,7 +212,7 @@ input:
     - Dockerfile
     - docker-compose.yml
 expected:
-  detected_stack: ["docker"]
+  detected_stack: ['docker']
   recommended_extensions:
     - ms-azuretools.vscode-docker
 validation:
@@ -211,9 +220,10 @@ validation:
 ```
 
 #### FND-010: Detect Empty/New Project
+
 ```yaml
 test_id: FND-010
-name: "Detect Empty/New Project"
+name: 'Detect Empty/New Project'
 difficulty: foundation
 category: stack_detection
 input:
@@ -221,7 +231,7 @@ input:
     - README.md
 expected:
   detected_stack: []
-  behavior: "Prompt user for project type"
+  behavior: 'Prompt user for project type'
 validation:
   - Gracefully handles empty project
   - Offers to scaffold configuration
@@ -230,15 +240,16 @@ validation:
 ### Category 1.2: File Generation (8 tests)
 
 #### FND-011: Generate Valid settings.json
+
 ```yaml
 test_id: FND-011
-name: "Generate Valid settings.json"
+name: 'Generate Valid settings.json'
 difficulty: foundation
 category: file_generation
 input:
-  detected_stack: ["typescript"]
+  detected_stack: ['typescript']
 expected:
-  file: ".vscode/settings.json"
+  file: '.vscode/settings.json'
   valid_json: true
   required_keys:
     - editor.formatOnSave
@@ -250,15 +261,16 @@ validation:
 ```
 
 #### FND-012: Generate Valid extensions.json
+
 ```yaml
 test_id: FND-012
-name: "Generate Valid extensions.json"
+name: 'Generate Valid extensions.json'
 difficulty: foundation
 category: file_generation
 input:
-  detected_stack: ["typescript"]
+  detected_stack: ['typescript']
 expected:
-  file: ".vscode/extensions.json"
+  file: '.vscode/extensions.json'
   valid_json: true
   structure:
     recommendations: array
@@ -270,18 +282,19 @@ validation:
 ```
 
 #### FND-013: Generate Valid tasks.json
+
 ```yaml
 test_id: FND-013
-name: "Generate Valid tasks.json"
+name: 'Generate Valid tasks.json'
 difficulty: foundation
 category: file_generation
 input:
-  detected_stack: ["typescript"]
-  package_scripts: ["build", "test", "lint"]
+  detected_stack: ['typescript']
+  package_scripts: ['build', 'test', 'lint']
 expected:
-  file: ".vscode/tasks.json"
+  file: '.vscode/tasks.json'
   valid_json: true
-  tasks_count: ">= 3"
+  tasks_count: '>= 3'
 validation:
   - JSON valid
   - Version 2.0.0
@@ -290,17 +303,18 @@ validation:
 ```
 
 #### FND-014: Generate Valid launch.json
+
 ```yaml
 test_id: FND-014
-name: "Generate Valid launch.json"
+name: 'Generate Valid launch.json'
 difficulty: foundation
 category: file_generation
 input:
-  detected_stack: ["typescript"]
+  detected_stack: ['typescript']
 expected:
-  file: ".vscode/launch.json"
+  file: '.vscode/launch.json'
   valid_json: true
-  configurations_count: ">= 1"
+  configurations_count: '>= 1'
 validation:
   - JSON valid
   - Version 0.2.0
@@ -309,34 +323,36 @@ validation:
 ```
 
 #### FND-015: Create .vscode Directory
+
 ```yaml
 test_id: FND-015
-name: "Create .vscode Directory"
+name: 'Create .vscode Directory'
 difficulty: foundation
 category: file_generation
 input:
   existing_vscode_dir: false
 expected:
   directory_created: true
-  path: ".vscode"
+  path: '.vscode'
 validation:
   - Directory created
   - Correct permissions
 ```
 
 #### FND-016: Preserve Existing settings.json
+
 ```yaml
 test_id: FND-016
-name: "Preserve Existing settings.json"
+name: 'Preserve Existing settings.json'
 difficulty: foundation
 category: file_generation
 input:
   existing_settings:
-    "custom.setting": true
+    'custom.setting': true
 expected:
   merged: true
   preserved_keys:
-    - "custom.setting"
+    - 'custom.setting'
 validation:
   - Existing settings preserved
   - New settings added
@@ -344,15 +360,16 @@ validation:
 ```
 
 #### FND-017: Handle Invalid Existing JSON
+
 ```yaml
 test_id: FND-017
-name: "Handle Invalid Existing JSON"
+name: 'Handle Invalid Existing JSON'
 difficulty: foundation
 category: file_generation
 input:
-  existing_settings: "{ invalid json"
+  existing_settings: '{ invalid json'
 expected:
-  behavior: "Create backup, generate new file"
+  behavior: 'Create backup, generate new file'
   backup_created: true
 validation:
   - Invalid JSON detected
@@ -361,15 +378,16 @@ validation:
 ```
 
 #### FND-018: Generate with Comments (JSONC)
+
 ```yaml
 test_id: FND-018
-name: "Generate with Comments (JSONC)"
+name: 'Generate with Comments (JSONC)'
 difficulty: foundation
 category: file_generation
 input:
-  detected_stack: ["typescript"]
+  detected_stack: ['typescript']
 expected:
-  file_format: "jsonc"
+  file_format: 'jsonc'
   has_comments: true
 validation:
   - Comments present
@@ -380,13 +398,14 @@ validation:
 ### Category 1.3: Extension Management (7 tests)
 
 #### FND-019: Recommend Essential Extensions
+
 ```yaml
 test_id: FND-019
-name: "Recommend Essential Extensions"
+name: 'Recommend Essential Extensions'
 difficulty: foundation
 category: extension_management
 input:
-  detected_stack: ["any"]
+  detected_stack: ['any']
 expected:
   always_included:
     - github.copilot
@@ -397,15 +416,16 @@ validation:
 ```
 
 #### FND-020: Validate Extension IDs
+
 ```yaml
 test_id: FND-020
-name: "Validate Extension IDs"
+name: 'Validate Extension IDs'
 difficulty: foundation
 category: extension_management
 input:
   recommended_extensions: [list]
 expected:
-  format: "publisher.extension-name"
+  format: 'publisher.extension-name'
   all_valid: true
 validation:
   - All IDs follow correct format
@@ -413,13 +433,14 @@ validation:
 ```
 
 #### FND-021: Avoid Deprecated Extensions
+
 ```yaml
 test_id: FND-021
-name: "Avoid Deprecated Extensions"
+name: 'Avoid Deprecated Extensions'
 difficulty: foundation
 category: extension_management
 input:
-  deprecated_list: ["ms-vscode.vscode-typescript-tslint-plugin"]
+  deprecated_list: ['ms-vscode.vscode-typescript-tslint-plugin']
 expected:
   not_recommended: deprecated_list
 validation:
@@ -427,13 +448,14 @@ validation:
 ```
 
 #### FND-022: Include in unwantedRecommendations
+
 ```yaml
 test_id: FND-022
-name: "Include in unwantedRecommendations"
+name: 'Include in unwantedRecommendations'
 difficulty: foundation
 category: extension_management
 input:
-  conflicting_extensions: ["hookyqr.beautify"]
+  conflicting_extensions: ['hookyqr.beautify']
 expected:
   unwantedRecommendations_contains: conflicting_extensions
 validation:
@@ -441,13 +463,14 @@ validation:
 ```
 
 #### FND-023: Stack-Specific Extensions
+
 ```yaml
 test_id: FND-023
-name: "Stack-Specific Extensions"
+name: 'Stack-Specific Extensions'
 difficulty: foundation
 category: extension_management
 input:
-  detected_stack: ["python"]
+  detected_stack: ['python']
 expected:
   recommended:
     - ms-python.python
@@ -457,13 +480,14 @@ validation:
 ```
 
 #### FND-024: Limit Extension Count
+
 ```yaml
 test_id: FND-024
-name: "Limit Extension Count"
+name: 'Limit Extension Count'
 difficulty: foundation
 category: extension_management
 input:
-  detected_stack: ["typescript", "react", "docker"]
+  detected_stack: ['typescript', 'react', 'docker']
 expected:
   max_recommendations: 25
 validation:
@@ -472,13 +496,13 @@ validation:
 ```
 
 #### FND-025: No Duplicate Extensions
+
 ```yaml
 test_id: FND-025
-name: "No Duplicate Extensions"
+name: 'No Duplicate Extensions'
 difficulty: foundation
 category: extension_management
-input:
-  any
+input: any
 expected:
   unique_recommendations: true
 validation:
@@ -492,9 +516,10 @@ validation:
 ### Category 2.1: Multi-Language Projects (10 tests)
 
 #### INT-001: TypeScript + Python Polyglot
+
 ```yaml
 test_id: INT-001
-name: "TypeScript + Python Polyglot"
+name: 'TypeScript + Python Polyglot'
 difficulty: intermediate
 category: multi_language
 input:
@@ -504,10 +529,10 @@ input:
     - frontend/src/App.tsx
     - backend/main.py
 expected:
-  detected_stack: ["typescript", "python"]
+  detected_stack: ['typescript', 'python']
   language_specific_settings:
-    "[typescript]": { formatter: "prettier" }
-    "[python]": { formatter: "black" }
+    '[typescript]': { formatter: 'prettier' }
+    '[python]': { formatter: 'black' }
 validation:
   - Both languages detected
   - Separate formatters configured
@@ -515,9 +540,10 @@ validation:
 ```
 
 #### INT-002: Full-Stack JavaScript + Go
+
 ```yaml
 test_id: INT-002
-name: "Full-Stack JavaScript + Go"
+name: 'Full-Stack JavaScript + Go'
 difficulty: intermediate
 category: multi_language
 input:
@@ -525,16 +551,17 @@ input:
     - frontend/package.json
     - backend/go.mod
 expected:
-  detected_stack: ["javascript", "go"]
+  detected_stack: ['javascript', 'go']
 validation:
   - Both stacks detected
   - Appropriate extensions for each
 ```
 
 #### INT-003: Rust + TypeScript WASM Project
+
 ```yaml
 test_id: INT-003
-name: "Rust + TypeScript WASM Project"
+name: 'Rust + TypeScript WASM Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -543,7 +570,7 @@ input:
     - package.json
     - wasm-bindgen config
 expected:
-  detected_stack: ["rust", "typescript", "wasm"]
+  detected_stack: ['rust', 'typescript', 'wasm']
   recommended_extensions:
     - rust-lang.rust-analyzer
     - dbaeumer.vscode-eslint
@@ -553,9 +580,10 @@ validation:
 ```
 
 #### INT-004: Java + Kotlin Mixed Project
+
 ```yaml
 test_id: INT-004
-name: "Java + Kotlin Mixed Project"
+name: 'Java + Kotlin Mixed Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -564,16 +592,17 @@ input:
     - src/main/java/App.java
     - src/main/kotlin/Utils.kt
 expected:
-  detected_stack: ["java", "kotlin", "gradle"]
+  detected_stack: ['java', 'kotlin', 'gradle']
 validation:
   - Both JVM languages detected
   - Gradle build system identified
 ```
 
 #### INT-005: C++ + Python Scientific Computing
+
 ```yaml
 test_id: INT-005
-name: "C++ + Python Scientific Computing"
+name: 'C++ + Python Scientific Computing'
 difficulty: intermediate
 category: multi_language
 input:
@@ -583,15 +612,16 @@ input:
     - python/bindings.py
     - setup.py
 expected:
-  detected_stack: ["cpp", "python", "cmake"]
+  detected_stack: ['cpp', 'python', 'cmake']
 validation:
   - Native extension pattern detected
 ```
 
 #### INT-006: .NET + TypeScript Blazor WASM
+
 ```yaml
 test_id: INT-006
-name: ".NET + TypeScript Blazor WASM"
+name: '.NET + TypeScript Blazor WASM'
 difficulty: intermediate
 category: multi_language
 input:
@@ -599,16 +629,17 @@ input:
     - MyApp.csproj (Blazor)
     - wwwroot/js/interop.ts
 expected:
-  detected_stack: ["dotnet", "blazor", "typescript"]
+  detected_stack: ['dotnet', 'blazor', 'typescript']
 validation:
   - Blazor WASM detected
   - TypeScript interop configured
 ```
 
 #### INT-007: Ruby + JavaScript Rails Project
+
 ```yaml
 test_id: INT-007
-name: "Ruby + JavaScript Rails Project"
+name: 'Ruby + JavaScript Rails Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -617,16 +648,17 @@ input:
     - config/routes.rb
     - app/javascript/packs/application.js
 expected:
-  detected_stack: ["ruby", "rails", "javascript"]
+  detected_stack: ['ruby', 'rails', 'javascript']
 validation:
   - Rails framework detected
   - Asset pipeline configured
 ```
 
 #### INT-008: PHP + Vue Laravel Project
+
 ```yaml
 test_id: INT-008
-name: "PHP + Vue Laravel Project"
+name: 'PHP + Vue Laravel Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -635,16 +667,17 @@ input:
     - artisan
     - resources/js/app.vue
 expected:
-  detected_stack: ["php", "laravel", "vue"]
+  detected_stack: ['php', 'laravel', 'vue']
 validation:
   - Laravel detected
   - Vue frontend configured
 ```
 
 #### INT-009: Swift + Objective-C iOS Project
+
 ```yaml
 test_id: INT-009
-name: "Swift + Objective-C iOS Project"
+name: 'Swift + Objective-C iOS Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -653,15 +686,16 @@ input:
     - Sources/App.swift
     - Legacy/Bridge.m
 expected:
-  detected_stack: ["swift", "objectivec", "ios"]
+  detected_stack: ['swift', 'objectivec', 'ios']
 validation:
   - Mixed iOS project detected
 ```
 
 #### INT-010: Elixir + JavaScript Phoenix Project
+
 ```yaml
 test_id: INT-010
-name: "Elixir + JavaScript Phoenix Project"
+name: 'Elixir + JavaScript Phoenix Project'
 difficulty: intermediate
 category: multi_language
 input:
@@ -670,7 +704,7 @@ input:
     - lib/my_app_web/router.ex
     - assets/js/app.js
 expected:
-  detected_stack: ["elixir", "phoenix", "javascript"]
+  detected_stack: ['elixir', 'phoenix', 'javascript']
 validation:
   - Phoenix framework detected
   - Asset configuration included
@@ -679,9 +713,10 @@ validation:
 ### Category 2.2: Monorepo Configurations (10 tests)
 
 #### INT-011: Turborepo + pnpm Monorepo
+
 ```yaml
 test_id: INT-011
-name: "Turborepo + pnpm Monorepo"
+name: 'Turborepo + pnpm Monorepo'
 difficulty: intermediate
 category: monorepo
 input:
@@ -692,10 +727,10 @@ input:
     - packages/ui/package.json
 expected:
   eslint_workingDirectories:
-    - { pattern: "apps/*" }
-    - { pattern: "packages/*" }
+    - { pattern: 'apps/*' }
+    - { pattern: 'packages/*' }
   search_exclude:
-    - "**/.turbo"
+    - '**/.turbo'
 validation:
   - Turborepo detected
   - pnpm workspace configured
@@ -703,9 +738,10 @@ validation:
 ```
 
 #### INT-012: Nx Monorepo
+
 ```yaml
 test_id: INT-012
-name: "Nx Monorepo"
+name: 'Nx Monorepo'
 difficulty: intermediate
 category: monorepo
 input:
@@ -722,9 +758,10 @@ validation:
 ```
 
 #### INT-013: Lerna Monorepo
+
 ```yaml
 test_id: INT-013
-name: "Lerna Monorepo"
+name: 'Lerna Monorepo'
 difficulty: intermediate
 category: monorepo
 input:
@@ -732,16 +769,17 @@ input:
     - lerna.json
     - packages/core/package.json
 expected:
-  eslint_workingDirectories: "packages/*"
+  eslint_workingDirectories: 'packages/*'
 validation:
   - Lerna detected
   - Package structure recognized
 ```
 
 #### INT-014: Yarn Workspaces
+
 ```yaml
 test_id: INT-014
-name: "Yarn Workspaces"
+name: 'Yarn Workspaces'
 difficulty: intermediate
 category: monorepo
 input:
@@ -749,15 +787,16 @@ input:
     - package.json (workspaces field)
     - yarn.lock
 expected:
-  typescript_tsdk: "node_modules/typescript/lib"
+  typescript_tsdk: 'node_modules/typescript/lib'
 validation:
   - Yarn workspaces detected
 ```
 
 #### INT-015: Cargo Workspace (Rust)
+
 ```yaml
 test_id: INT-015
-name: "Cargo Workspace (Rust)"
+name: 'Cargo Workspace (Rust)'
 difficulty: intermediate
 category: monorepo
 input:
@@ -772,9 +811,10 @@ validation:
 ```
 
 #### INT-016: Go Modules Multi-Module
+
 ```yaml
 test_id: INT-016
-name: "Go Modules Multi-Module"
+name: 'Go Modules Multi-Module'
 difficulty: intermediate
 category: monorepo
 input:
@@ -789,9 +829,10 @@ validation:
 ```
 
 #### INT-017: Bazel Monorepo
+
 ```yaml
 test_id: INT-017
-name: "Bazel Monorepo"
+name: 'Bazel Monorepo'
 difficulty: intermediate
 category: monorepo
 input:
@@ -807,9 +848,10 @@ validation:
 ```
 
 #### INT-018: Multi-Root Workspace Generation
+
 ```yaml
 test_id: INT-018
-name: "Multi-Root Workspace Generation"
+name: 'Multi-Root Workspace Generation'
 difficulty: intermediate
 category: monorepo
 input:
@@ -827,9 +869,10 @@ validation:
 ```
 
 #### INT-019: Nested Package Detection
+
 ```yaml
 test_id: INT-019
-name: "Nested Package Detection"
+name: 'Nested Package Detection'
 difficulty: intermediate
 category: monorepo
 input:
@@ -844,9 +887,10 @@ validation:
 ```
 
 #### INT-020: Mixed Package Managers
+
 ```yaml
 test_id: INT-020
-name: "Mixed Package Managers"
+name: 'Mixed Package Managers'
 difficulty: intermediate
 category: monorepo
 input:
@@ -854,8 +898,8 @@ input:
     - pnpm-lock.yaml (root)
     - legacy/yarn.lock (subdirectory)
 expected:
-  warning: "Mixed package managers detected"
-  primary_manager: "pnpm"
+  warning: 'Mixed package managers detected'
+  primary_manager: 'pnpm'
 validation:
   - Conflict detected
   - User warned
@@ -865,16 +909,17 @@ validation:
 ### Category 2.3: Conflict Resolution (10 tests)
 
 #### INT-021: Prettier vs ESLint Formatting
+
 ```yaml
 test_id: INT-021
-name: "Prettier vs ESLint Formatting"
+name: 'Prettier vs ESLint Formatting'
 difficulty: intermediate
 category: conflict_resolution
 input:
-  eslint_config: { extends: ["prettier"] }
+  eslint_config: { extends: ['prettier'] }
   prettier_config: { semi: true }
 expected:
-  editor_defaultFormatter: "esbenp.prettier-vscode"
+  editor_defaultFormatter: 'esbenp.prettier-vscode'
   eslint_fix_on_save: true
   no_format_conflict: true
 validation:
@@ -884,16 +929,17 @@ validation:
 ```
 
 #### INT-022: Multiple TypeScript Versions
+
 ```yaml
 test_id: INT-022
-name: "Multiple TypeScript Versions"
+name: 'Multiple TypeScript Versions'
 difficulty: intermediate
 category: conflict_resolution
 input:
-  root_typescript: "5.3.0"
-  package_typescript: "4.9.0"
+  root_typescript: '5.3.0'
+  package_typescript: '4.9.0'
 expected:
-  typescript_tsdk: "node_modules/typescript/lib"
+  typescript_tsdk: 'node_modules/typescript/lib'
   use_workspace_version: true
 validation:
   - Workspace TypeScript used
@@ -901,67 +947,71 @@ validation:
 ```
 
 #### INT-023: Overlapping Extensions
+
 ```yaml
 test_id: INT-023
-name: "Overlapping Extensions"
+name: 'Overlapping Extensions'
 difficulty: intermediate
 category: conflict_resolution
 input:
   candidate_extensions:
-    - "esbenp.prettier-vscode"
-    - "HookyQR.beautify"
+    - 'esbenp.prettier-vscode'
+    - 'HookyQR.beautify'
 expected:
-  recommended: "esbenp.prettier-vscode"
-  unwanted: "HookyQR.beautify"
+  recommended: 'esbenp.prettier-vscode'
+  unwanted: 'HookyQR.beautify'
 validation:
   - Better extension chosen
   - Overlapping extension in unwanted
 ```
 
 #### INT-024: Keybinding Conflicts
+
 ```yaml
 test_id: INT-024
-name: "Keybinding Conflicts"
+name: 'Keybinding Conflicts'
 difficulty: intermediate
 category: conflict_resolution
 input:
   extensions_with_keybindings:
-    - ext1: "Ctrl+Shift+P"
-    - ext2: "Ctrl+Shift+P"
+    - ext1: 'Ctrl+Shift+P'
+    - ext2: 'Ctrl+Shift+P'
 expected:
-  warning: "Keybinding conflict detected"
+  warning: 'Keybinding conflict detected'
 validation:
   - Conflict identified
   - User notified
 ```
 
 #### INT-025: Language Server Conflicts
+
 ```yaml
 test_id: INT-025
-name: "Language Server Conflicts"
+name: 'Language Server Conflicts'
 difficulty: intermediate
 category: conflict_resolution
 input:
   typescript_extensions:
-    - "vscode.typescript-language-features"
-    - "denoland.vscode-deno"
+    - 'vscode.typescript-language-features'
+    - 'denoland.vscode-deno'
 expected:
-  resolution: "Disable Deno for non-Deno projects"
+  resolution: 'Disable Deno for non-Deno projects'
 validation:
   - Only one TS language server active
 ```
 
 #### INT-026: Formatter Per File Type
+
 ```yaml
 test_id: INT-026
-name: "Formatter Per File Type"
+name: 'Formatter Per File Type'
 difficulty: intermediate
 category: conflict_resolution
 input:
   formatters:
-    typescript: "prettier"
-    python: "black"
-    rust: "rust-analyzer"
+    typescript: 'prettier'
+    python: 'black'
+    rust: 'rust-analyzer'
 expected:
   language_specific_formatters: true
   no_global_override: true
@@ -971,9 +1021,10 @@ validation:
 ```
 
 #### INT-027: ESLint vs TSLint Migration
+
 ```yaml
 test_id: INT-027
-name: "ESLint vs TSLint Migration"
+name: 'ESLint vs TSLint Migration'
 difficulty: intermediate
 category: conflict_resolution
 input:
@@ -981,17 +1032,18 @@ input:
     - tslint.json (deprecated)
     - .eslintrc.js
 expected:
-  warning: "TSLint is deprecated"
-  recommendation: "Migrate to ESLint"
+  warning: 'TSLint is deprecated'
+  recommendation: 'Migrate to ESLint'
 validation:
   - Deprecated tool detected
   - Migration suggested
 ```
 
 #### INT-028: Jest vs Vitest Configuration
+
 ```yaml
 test_id: INT-028
-name: "Jest vs Vitest Configuration"
+name: 'Jest vs Vitest Configuration'
 difficulty: intermediate
 category: conflict_resolution
 input:
@@ -999,7 +1051,7 @@ input:
     - jest.config.js
     - vitest.config.ts
 expected:
-  warning: "Multiple test runners detected"
+  warning: 'Multiple test runners detected'
   clarification_needed: true
 validation:
   - Both test runners detected
@@ -1007,9 +1059,10 @@ validation:
 ```
 
 #### INT-029: Docker vs Dev Container
+
 ```yaml
 test_id: INT-029
-name: "Docker vs Dev Container"
+name: 'Docker vs Dev Container'
 difficulty: intermediate
 category: conflict_resolution
 input:
@@ -1023,9 +1076,10 @@ validation:
 ```
 
 #### INT-030: Git Hooks Conflict
+
 ```yaml
 test_id: INT-030
-name: "Git Hooks Conflict"
+name: 'Git Hooks Conflict'
 difficulty: intermediate
 category: conflict_resolution
 input:
@@ -1033,7 +1087,7 @@ input:
     - .husky/pre-commit
     - .git/hooks/pre-commit
 expected:
-  warning: "Multiple hook systems"
+  warning: 'Multiple hook systems'
 validation:
   - Conflict detected
   - Husky preference indicated
@@ -1046,9 +1100,10 @@ validation:
 ### Category 3.1: Performance Optimization (10 tests)
 
 #### ADV-001: Large Codebase Optimization
+
 ```yaml
 test_id: ADV-001
-name: "Large Codebase Optimization"
+name: 'Large Codebase Optimization'
 difficulty: advanced
 category: performance
 input:
@@ -1066,40 +1121,43 @@ validation:
 ```
 
 #### ADV-002: Node Modules Exclusion
+
 ```yaml
 test_id: ADV-002
-name: "Node Modules Exclusion"
+name: 'Node Modules Exclusion'
 difficulty: advanced
 category: performance
 input:
   node_modules_size_gb: 5
 expected:
-  files_exclude: "**/node_modules"
-  search_exclude: "**/node_modules"
-  files_watcherExclude: "**/node_modules/**"
+  files_exclude: '**/node_modules'
+  search_exclude: '**/node_modules'
+  files_watcherExclude: '**/node_modules/**'
 validation:
   - node_modules excluded from all operations
 ```
 
 #### ADV-003: Turbo Cache Exclusion
+
 ```yaml
 test_id: ADV-003
-name: "Turbo Cache Exclusion"
+name: 'Turbo Cache Exclusion'
 difficulty: advanced
 category: performance
 input:
   turbo_cache_present: true
 expected:
-  files_exclude: "**/.turbo"
-  search_exclude: "**/.turbo"
+  files_exclude: '**/.turbo'
+  search_exclude: '**/.turbo'
 validation:
   - .turbo excluded
 ```
 
 #### ADV-004: Lock File Exclusion from Search
+
 ```yaml
 test_id: ADV-004
-name: "Lock File Exclusion from Search"
+name: 'Lock File Exclusion from Search'
 difficulty: advanced
 category: performance
 input:
@@ -1114,9 +1172,10 @@ validation:
 ```
 
 #### ADV-005: Binary File Handling
+
 ```yaml
 test_id: ADV-005
-name: "Binary File Handling"
+name: 'Binary File Handling'
 difficulty: advanced
 category: performance
 input:
@@ -1131,30 +1190,32 @@ validation:
 ```
 
 #### ADV-006: Git Object Exclusion
+
 ```yaml
 test_id: ADV-006
-name: "Git Object Exclusion"
+name: 'Git Object Exclusion'
 difficulty: advanced
 category: performance
 input:
   git_repo: true
 expected:
   files_watcherExclude:
-    - "**/.git/objects/**"
-    - "**/.git/subtree-cache/**"
+    - '**/.git/objects/**'
+    - '**/.git/subtree-cache/**'
 validation:
   - Git internals excluded from watching
 ```
 
 #### ADV-007: Memory Configuration Scaling
+
 ```yaml
 test_id: ADV-007
-name: "Memory Configuration Scaling"
+name: 'Memory Configuration Scaling'
 difficulty: advanced
 category: performance
 input:
   system_ram_gb: 32
-  project_size: "large"
+  project_size: 'large'
 expected:
   files_maxMemoryForLargeFilesMB: 8192
 validation:
@@ -1162,9 +1223,10 @@ validation:
 ```
 
 #### ADV-008: Extension Host Optimization
+
 ```yaml
 test_id: ADV-008
-name: "Extension Host Optimization"
+name: 'Extension Host Optimization'
 difficulty: advanced
 category: performance
 input:
@@ -1177,24 +1239,26 @@ validation:
 ```
 
 #### ADV-009: IntelliSense Scope Limiting
+
 ```yaml
 test_id: ADV-009
-name: "IntelliSense Scope Limiting"
+name: 'IntelliSense Scope Limiting'
 difficulty: advanced
 category: performance
 input:
-  project_type: "monorepo"
+  project_type: 'monorepo'
   package_count: 20
 expected:
-  typescript_preferences_includePackageJsonAutoImports: "off"
+  typescript_preferences_includePackageJsonAutoImports: 'off'
 validation:
   - Auto-imports scoped to reduce overhead
 ```
 
 #### ADV-010: Search Follow Symlinks
+
 ```yaml
 test_id: ADV-010
-name: "Search Follow Symlinks"
+name: 'Search Follow Symlinks'
 difficulty: advanced
 category: performance
 input:
@@ -1208,9 +1272,10 @@ validation:
 ### Category 3.2: Agent Integration (10 tests)
 
 #### ADV-011: Elite Agent Collective Detection
+
 ```yaml
 test_id: ADV-011
-name: "Elite Agent Collective Detection"
+name: 'Elite Agent Collective Detection'
 difficulty: advanced
 category: agent_integration
 input:
@@ -1218,10 +1283,10 @@ input:
     - .github/agents/*.agent.md (40+ files)
     - .github/copilot-instructions.md
 expected:
-  detected: "Elite Agent Collective"
+  detected: 'Elite Agent Collective'
   agent_count: 41
   settings:
-    - files.associations["*.agent.md"]: "markdown"
+    - files.associations["*.agent.md"]: 'markdown'
 validation:
   - Agent collective detected
   - Correct count
@@ -1229,9 +1294,10 @@ validation:
 ```
 
 #### ADV-012: Copilot Chat Optimization
+
 ```yaml
 test_id: ADV-012
-name: "Copilot Chat Optimization"
+name: 'Copilot Chat Optimization'
 difficulty: advanced
 category: agent_integration
 input:
@@ -1246,14 +1312,15 @@ validation:
 ```
 
 #### ADV-013: Terminal Auto-Approve for pnpm
+
 ```yaml
 test_id: ADV-013
-name: "Terminal Auto-Approve for pnpm"
+name: 'Terminal Auto-Approve for pnpm'
 difficulty: advanced
 category: agent_integration
 input:
-  package_manager: "pnpm"
-  scripts: ["build", "test", "lint"]
+  package_manager: 'pnpm'
+  scripts: ['build', 'test', 'lint']
 expected:
   chat.tools.terminal.enableAutoApprove: true
   chat.tools.terminal.autoApproveWorkspaceNpmScripts: true
@@ -1263,13 +1330,14 @@ validation:
 ```
 
 #### ADV-014: Agent Skills Directory
+
 ```yaml
 test_id: ADV-014
-name: "Agent Skills Directory"
+name: 'Agent Skills Directory'
 difficulty: advanced
 category: agent_integration
 input:
-  skills_directory: ".github/skills/"
+  skills_directory: '.github/skills/'
 expected:
   chat.useAgentSkills: true
 validation:
@@ -1277,9 +1345,10 @@ validation:
 ```
 
 #### ADV-015: OMNISCIENT Reporting
+
 ```yaml
 test_id: ADV-015
-name: "OMNISCIENT Reporting"
+name: 'OMNISCIENT Reporting'
 difficulty: advanced
 category: agent_integration
 input:
@@ -1287,7 +1356,7 @@ input:
 expected:
   report_generated: true
   report_fields:
-    - agent_id: "VSCODE-ENV"
+    - agent_id: 'VSCODE-ENV'
     - detected_stacks
     - settings_applied
     - extensions_recommended
@@ -1297,62 +1366,66 @@ validation:
 ```
 
 #### ADV-016: Cross-Agent Referral Handling
+
 ```yaml
 test_id: ADV-016
-name: "Cross-Agent Referral Handling"
+name: 'Cross-Agent Referral Handling'
 difficulty: advanced
 category: agent_integration
 input:
-  referral_from: "@APEX"
-  issue: "TypeScript configuration missing"
+  referral_from: '@APEX'
+  issue: 'TypeScript configuration missing'
 expected:
-  priority: "high"
-  focused_response: "typescript"
+  priority: 'high'
+  focused_response: 'typescript'
 validation:
   - Referral recognized
   - Focused response generated
 ```
 
 #### ADV-017: Agent Task Generation
+
 ```yaml
 test_id: ADV-017
-name: "Agent Task Generation"
+name: 'Agent Task Generation'
 difficulty: advanced
 category: agent_integration
 input:
   agent_collective: true
 expected:
   tasks_include:
-    - "Agent: Validate All Agent Specs"
-    - "Agent: Count Agents"
+    - 'Agent: Validate All Agent Specs'
+    - 'Agent: Count Agents'
 validation:
   - Agent-specific tasks generated
 ```
 
 #### ADV-018: Copilot Context Optimization
+
 ```yaml
 test_id: ADV-018
-name: "Copilot Context Optimization"
+name: 'Copilot Context Optimization'
 difficulty: advanced
 category: agent_integration
 input:
   large_context_files: true
 expected:
   files_exclude_from_copilot:
-    - "**/*.min.js"
-    - "**/vendor/**"
+    - '**/*.min.js'
+    - '**/vendor/**'
 validation:
   - Noisy files excluded from Copilot context
 ```
 
 #### ADV-019: Multi-Agent Workspace
+
 ```yaml
 test_id: ADV-019
-name: "Multi-Agent Workspace"
+name: 'Multi-Agent Workspace'
 difficulty: advanced
 category: agent_integration
 input:
-  agents_active: ["APEX", "CIPHER", "FLUX"]
+  agents_active: ['APEX', 'CIPHER', 'FLUX']
 expected:
   configuration_supports_all: true
 validation:
@@ -1360,15 +1433,16 @@ validation:
 ```
 
 #### ADV-020: Agent Spec File Association
+
 ```yaml
 test_id: ADV-020
-name: "Agent Spec File Association"
+name: 'Agent Spec File Association'
 difficulty: advanced
 category: agent_integration
 input:
-  agent_files: "*.agent.md"
+  agent_files: '*.agent.md'
 expected:
-  files.associations: { "*.agent.md": "markdown" }
+  files.associations: { '*.agent.md': 'markdown' }
   markdown_preview_enabled: true
 validation:
   - Agent specs treated as markdown
@@ -1377,9 +1451,10 @@ validation:
 ### Category 3.3: Advanced Scenarios (5 tests)
 
 #### ADV-021: VS Code Extension Development
+
 ```yaml
 test_id: ADV-021
-name: "VS Code Extension Development"
+name: 'VS Code Extension Development'
 difficulty: advanced
 category: advanced_scenarios
 input:
@@ -1389,8 +1464,8 @@ input:
     - .vscode/launch.json (extension host)
 expected:
   launch_configurations:
-    - "Run Extension"
-    - "Extension Tests"
+    - 'Run Extension'
+    - 'Extension Tests'
   recommended_extensions:
     - connor4312.esbuild-problem-matchers
 validation:
@@ -1399,9 +1474,10 @@ validation:
 ```
 
 #### ADV-022: Remote Development Configuration
+
 ```yaml
 test_id: ADV-022
-name: "Remote Development Configuration"
+name: 'Remote Development Configuration'
 difficulty: advanced
 category: advanced_scenarios
 input:
@@ -1414,13 +1490,14 @@ validation:
 ```
 
 #### ADV-023: Codespaces Optimization
+
 ```yaml
 test_id: ADV-023
-name: "Codespaces Optimization"
+name: 'Codespaces Optimization'
 difficulty: advanced
 category: advanced_scenarios
 input:
-  environment: "codespaces"
+  environment: 'codespaces'
 expected:
   settings_optimized_for_web: true
 validation:
@@ -1428,27 +1505,29 @@ validation:
 ```
 
 #### ADV-024: WSL Integration
+
 ```yaml
 test_id: ADV-024
-name: "WSL Integration"
+name: 'WSL Integration'
 difficulty: advanced
 category: advanced_scenarios
 input:
   wsl_detected: true
 expected:
-  terminal_integrated_defaultProfile_windows: "WSL"
+  terminal_integrated_defaultProfile_windows: 'WSL'
 validation:
   - WSL as default terminal
 ```
 
 #### ADV-025: Multi-Platform Project
+
 ```yaml
 test_id: ADV-025
-name: "Multi-Platform Project"
+name: 'Multi-Platform Project'
 difficulty: advanced
 category: advanced_scenarios
 input:
-  platforms: ["windows", "linux", "macos"]
+  platforms: ['windows', 'linux', 'macos']
 expected:
   platform_agnostic_paths: true
   no_hardcoded_paths: true
@@ -1463,26 +1542,28 @@ validation:
 ### Category 4.1: Edge Cases (10 tests)
 
 #### EXT-001: 100,000+ File Project
+
 ```yaml
 test_id: EXT-001
-name: "100,000+ File Project"
+name: '100,000+ File Project'
 difficulty: extreme
 category: edge_cases
 input:
   file_count: 150000
   nested_depth: 20
 expected:
-  performance_mode: "aggressive"
-  response_time_seconds: "< 30"
+  performance_mode: 'aggressive'
+  response_time_seconds: '< 30'
 validation:
   - Handles massive project
   - Completes in reasonable time
 ```
 
 #### EXT-002: Deeply Nested Directory Structure
+
 ```yaml
 test_id: EXT-002
-name: "Deeply Nested Directory Structure"
+name: 'Deeply Nested Directory Structure'
 difficulty: extreme
 category: edge_cases
 input:
@@ -1495,16 +1576,17 @@ validation:
 ```
 
 #### EXT-003: Unicode Paths and Filenames
+
 ```yaml
 test_id: EXT-003
-name: "Unicode Paths and Filenames"
+name: 'Unicode Paths and Filenames'
 difficulty: extreme
 category: edge_cases
 input:
   paths:
-    - "项目/源代码/main.ts"
-    - "проект/код/app.py"
-    - "🚀/launch.rs"
+    - '项目/源代码/main.ts'
+    - 'проект/код/app.py'
+    - '🚀/launch.rs'
 expected:
   all_paths_handled: true
 validation:
@@ -1512,13 +1594,14 @@ validation:
 ```
 
 #### EXT-004: Symlink Loops
+
 ```yaml
 test_id: EXT-004
-name: "Symlink Loops"
+name: 'Symlink Loops'
 difficulty: extreme
 category: edge_cases
 input:
-  symlink_loop: "a -> b -> a"
+  symlink_loop: 'a -> b -> a'
 expected:
   loop_detected: true
   no_infinite_loop: true
@@ -1528,14 +1611,15 @@ validation:
 ```
 
 #### EXT-005: Corrupted Configuration Files
+
 ```yaml
 test_id: EXT-005
-name: "Corrupted Configuration Files"
+name: 'Corrupted Configuration Files'
 difficulty: extreme
 category: edge_cases
 input:
   corrupted_files:
-    - package.json: "{ corrupted"
+    - package.json: '{ corrupted'
     - tsconfig.json: null
 expected:
   graceful_degradation: true
@@ -1546,16 +1630,17 @@ validation:
 ```
 
 #### EXT-006: Mixed Line Endings
+
 ```yaml
 test_id: EXT-006
-name: "Mixed Line Endings"
+name: 'Mixed Line Endings'
 difficulty: extreme
 category: edge_cases
 input:
   files_with_crlf: 500
   files_with_lf: 500
 expected:
-  files.eol: "auto"
+  files.eol: 'auto'
   warning_issued: true
 validation:
   - Mixed endings detected
@@ -1563,9 +1648,10 @@ validation:
 ```
 
 #### EXT-007: Extremely Long File Paths
+
 ```yaml
 test_id: EXT-007
-name: "Extremely Long File Paths"
+name: 'Extremely Long File Paths'
 difficulty: extreme
 category: edge_cases
 input:
@@ -1578,13 +1664,14 @@ validation:
 ```
 
 #### EXT-008: Read-Only File System
+
 ```yaml
 test_id: EXT-008
-name: "Read-Only File System"
+name: 'Read-Only File System'
 difficulty: extreme
 category: edge_cases
 input:
-  filesystem: "read-only"
+  filesystem: 'read-only'
 expected:
   dry_run_mode: true
   recommendations_only: true
@@ -1594,9 +1681,10 @@ validation:
 ```
 
 #### EXT-009: Network Drive Project
+
 ```yaml
 test_id: EXT-009
-name: "Network Drive Project"
+name: 'Network Drive Project'
 difficulty: extreme
 category: edge_cases
 input:
@@ -1610,9 +1698,10 @@ validation:
 ```
 
 #### EXT-010: Git LFS Large Files
+
 ```yaml
 test_id: EXT-010
-name: "Git LFS Large Files"
+name: 'Git LFS Large Files'
 difficulty: extreme
 category: edge_cases
 input:
@@ -1628,9 +1717,10 @@ validation:
 ### Category 4.2: Recovery Scenarios (5 tests)
 
 #### EXT-011: Rollback After Failed Apply
+
 ```yaml
 test_id: EXT-011
-name: "Rollback After Failed Apply"
+name: 'Rollback After Failed Apply'
 difficulty: extreme
 category: recovery
 input:
@@ -1645,9 +1735,10 @@ validation:
 ```
 
 #### EXT-012: Recovery from Deleted .vscode
+
 ```yaml
 test_id: EXT-012
-name: "Recovery from Deleted .vscode"
+name: 'Recovery from Deleted .vscode'
 difficulty: extreme
 category: recovery
 input:
@@ -1660,9 +1751,10 @@ validation:
 ```
 
 #### EXT-013: Backup Restoration
+
 ```yaml
 test_id: EXT-013
-name: "Backup Restoration"
+name: 'Backup Restoration'
 difficulty: extreme
 category: recovery
 input:
@@ -1677,9 +1769,10 @@ validation:
 ```
 
 #### EXT-014: Merge Conflict in Settings
+
 ```yaml
 test_id: EXT-014
-name: "Merge Conflict in Settings"
+name: 'Merge Conflict in Settings'
 difficulty: extreme
 category: recovery
 input:
@@ -1693,9 +1786,10 @@ validation:
 ```
 
 #### EXT-015: Disk Full During Write
+
 ```yaml
 test_id: EXT-015
-name: "Disk Full During Write"
+name: 'Disk Full During Write'
 difficulty: extreme
 category: recovery
 input:
@@ -1711,15 +1805,16 @@ validation:
 ### Category 4.3: Adversarial Inputs (5 tests)
 
 #### EXT-016: Malicious package.json
+
 ```yaml
 test_id: EXT-016
-name: "Malicious package.json"
+name: 'Malicious package.json'
 difficulty: extreme
 category: adversarial
 input:
   package_json:
     scripts:
-      postinstall: "rm -rf /"
+      postinstall: 'rm -rf /'
 expected:
   scripts_not_executed: true
   warning_issued: true
@@ -1729,13 +1824,14 @@ validation:
 ```
 
 #### EXT-017: Injection in Config Values
+
 ```yaml
 test_id: EXT-017
-name: "Injection in Config Values"
+name: 'Injection in Config Values'
 difficulty: extreme
 category: adversarial
 input:
-  config_value: "${env:PATH}"
+  config_value: '${env:PATH}'
 expected:
   value_sanitized: true
   no_env_expansion: true
@@ -1744,9 +1840,10 @@ validation:
 ```
 
 #### EXT-018: Oversized Configuration
+
 ```yaml
 test_id: EXT-018
-name: "Oversized Configuration"
+name: 'Oversized Configuration'
 difficulty: extreme
 category: adversarial
 input:
@@ -1759,9 +1856,10 @@ validation:
 ```
 
 #### EXT-019: Circular Dependencies in Settings
+
 ```yaml
 test_id: EXT-019
-name: "Circular Dependencies in Settings"
+name: 'Circular Dependencies in Settings'
 difficulty: extreme
 category: adversarial
 input:
@@ -1774,14 +1872,15 @@ validation:
 ```
 
 #### EXT-020: Conflicting Required Settings
+
 ```yaml
 test_id: EXT-020
-name: "Conflicting Required Settings"
+name: 'Conflicting Required Settings'
 difficulty: extreme
 category: adversarial
 input:
-  user_requirement: "formatOnSave: false"
-  agent_requirement: "formatOnSave: true"
+  user_requirement: 'formatOnSave: false'
+  agent_requirement: 'formatOnSave: true'
 expected:
   user_preference_wins: true
   warning_issued: true
@@ -1796,23 +1895,23 @@ validation:
 
 ### Metrics to Capture
 
-| Metric | Description |
-|--------|-------------|
-| Detection Accuracy | % of stacks correctly identified |
-| Configuration Validity | % of generated files that are valid |
-| Conflict Resolution Rate | % of conflicts successfully resolved |
-| Performance (Large Projects) | Time to complete analysis |
-| Recovery Success Rate | % of recovery scenarios handled |
-| User Acceptance Rate | % of recommendations accepted |
+| Metric                       | Description                          |
+| ---------------------------- | ------------------------------------ |
+| Detection Accuracy           | % of stacks correctly identified     |
+| Configuration Validity       | % of generated files that are valid  |
+| Conflict Resolution Rate     | % of conflicts successfully resolved |
+| Performance (Large Projects) | Time to complete analysis            |
+| Recovery Success Rate        | % of recovery scenarios handled      |
+| User Acceptance Rate         | % of recommendations accepted        |
 
 ### Reporting to OMNISCIENT
 
 ```yaml
 test_report:
-  agent_id: "VSCODE-ENV"
-  test_suite_version: "1.0.0"
-  execution_date: "2025-02-03"
-  
+  agent_id: 'VSCODE-ENV'
+  test_suite_version: '1.0.0'
+  execution_date: '2025-02-03'
+
   results:
     tier_1_foundation:
       total: 25
@@ -1834,12 +1933,12 @@ test_report:
       passed: 0
       failed: 0
       skipped: 0
-  
+
   overall:
     total_tests: 100
     pass_rate: 0%
     execution_time_seconds: 0
-    
+
   fitness_score: 0.0
   breakthrough_potential: false
 ```
@@ -1873,5 +1972,5 @@ test_report:
 
 ---
 
-*Test Suite Generated by @VSCODE-ENV with @ECLIPSE collaboration*
-*Elite Agent Collective v3.1*
+_Test Suite Generated by @VSCODE-ENV with @ECLIPSE collaboration_
+_Elite Agent Collective v3.1_

@@ -35,10 +35,7 @@ export class QueryEngine {
    * @param options - Query options
    * @returns Query result with matches
    */
-  async query(
-    code: string,
-    options: Partial<QueryOptions> = {},
-  ): Promise<QueryResult> {
+  async query(code: string, options: Partial<QueryOptions> = {}): Promise<QueryResult> {
     const opts = { ...DEFAULT_QUERY_OPTIONS, ...options };
     const startTime = performance.now();
 
@@ -75,10 +72,7 @@ export class QueryEngine {
    * @param options - Query options
    * @returns Query result with matches
    */
-  async querySimilar(
-    blockId: string,
-    options: Partial<QueryOptions> = {},
-  ): Promise<QueryResult> {
+  async querySimilar(blockId: string, options: Partial<QueryOptions> = {}): Promise<QueryResult> {
     const opts = { ...DEFAULT_QUERY_OPTIONS, ...options };
     const startTime = performance.now();
 
@@ -121,9 +115,7 @@ export class QueryEngine {
    *
    * Uses a union-find based approach to group similar blocks.
    */
-  async findAllClones(
-    options: Partial<QueryOptions> = {},
-  ): Promise<CloneCluster[]> {
+  async findAllClones(options: Partial<QueryOptions> = {}): Promise<CloneCluster[]> {
     const opts = { ...DEFAULT_QUERY_OPTIONS, ...options };
     const blocks = this.index.getAllBlocks();
 
@@ -180,10 +172,7 @@ export class QueryEngine {
 
       for (const candidate of candidates) {
         if (candidate.block.id === block.id) continue;
-        if (
-          candidate.actualSimilarity &&
-          candidate.actualSimilarity >= opts.minSimilarity
-        ) {
+        if (candidate.actualSimilarity && candidate.actualSimilarity >= opts.minSimilarity) {
           // Union the blocks
           union(block.id, candidate.block.id);
 
@@ -192,11 +181,7 @@ export class QueryEngine {
             source: block,
             target: candidate.block,
             similarity: candidate.actualSimilarity,
-            cloneType: this.classifyCloneType(
-              block,
-              candidate.block,
-              candidate.actualSimilarity,
-            ),
+            cloneType: this.classifyCloneType(block, candidate.block, candidate.actualSimilarity),
           });
         }
       }
@@ -242,8 +227,7 @@ export class QueryEngine {
     for (const cluster of clusters.values()) {
       if (cluster.blocks.length < 2) continue;
 
-      cluster.avgSimilarity =
-        cluster.count > 0 ? cluster.similaritySum / cluster.count : 0;
+      cluster.avgSimilarity = cluster.count > 0 ? cluster.similaritySum / cluster.count : 0;
 
       // Determine clone type for cluster
       let cloneType: CloneType = 'type-4';
@@ -270,7 +254,7 @@ export class QueryEngine {
    */
   private filterAndClassify(
     candidates: readonly LSHQueryResult[],
-    options: QueryOptions,
+    options: QueryOptions
   ): CloneResult[] {
     const results: CloneResult[] = [];
 
@@ -316,11 +300,7 @@ export class QueryEngine {
   /**
    * Classifies clone type by comparing two blocks.
    */
-  private classifyCloneType(
-    source: CodeBlock,
-    target: CodeBlock,
-    similarity: number,
-  ): CloneType {
+  private classifyCloneType(source: CodeBlock, target: CodeBlock, similarity: number): CloneType {
     // Check for exact match (Type-1)
     if (source.normalizedHash === target.normalizedHash) {
       return 'type-1';

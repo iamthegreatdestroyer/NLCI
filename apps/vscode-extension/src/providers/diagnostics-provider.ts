@@ -7,7 +7,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import type { CloneResult } from '@nlci/core';
-import { NlciService } from '../services/nlci-service';
+import type { NlciService } from '../services/nlci-service';
 
 /**
  * Diagnostics provider for clone detection
@@ -22,7 +22,7 @@ export class CloneDiagnosticsProvider implements vscode.Disposable {
     // Subscribe to document events
     this.disposables.push(
       vscode.workspace.onDidOpenTextDocument((doc) => {
-        this.updateDiagnostics(doc);
+        void this.updateDiagnostics(doc);
       }),
       vscode.workspace.onDidCloseTextDocument((doc) => {
         this.diagnosticCollection.delete(doc.uri);
@@ -35,7 +35,7 @@ export class CloneDiagnosticsProvider implements vscode.Disposable {
    */
   refresh(): void {
     for (const doc of vscode.workspace.textDocuments) {
-      this.updateDiagnostics(doc);
+      void this.updateDiagnostics(doc);
     }
   }
 

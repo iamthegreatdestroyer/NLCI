@@ -13,10 +13,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -26,11 +23,7 @@
     "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
-  "keywords": [
-    "nlci",
-    "shared",
-    "utilities"
-  ],
+  "keywords": ["nlci", "shared", "utilities"],
   "author": "",
   "license": "AGPL-3.0-or-later",
   "repository": {

@@ -121,6 +121,7 @@ Scans for:
 Dynamically generated based on detected stack:
 
 **TypeScript/JavaScript:**
+
 ```json
 {
   "[typescript][typescriptreact]": {
@@ -133,6 +134,7 @@ Dynamically generated based on detected stack:
 ```
 
 **Python:**
+
 ```json
 {
   "[python]": {
@@ -145,6 +147,7 @@ Dynamically generated based on detected stack:
 ```
 
 **Rust:**
+
 ```json
 {
   "[rust]": {
@@ -159,34 +162,38 @@ Dynamically generated based on detected stack:
 
 ### Universal Extensions (Always Recommended)
 
-| Extension | Purpose |
-|-----------|---------|
-| GitHub.copilot | AI pair programming |
-| GitHub.copilot-chat | Conversational AI assistance |
-| GitHub.vscode-pull-request-github | PR management |
-| eamodio.gitlens | Git supercharged |
-| usernamehw.errorlens | Inline error display |
-| streetsidesoftware.code-spell-checker | Spell checking |
+| Extension                             | Purpose                      |
+| ------------------------------------- | ---------------------------- |
+| GitHub.copilot                        | AI pair programming          |
+| GitHub.copilot-chat                   | Conversational AI assistance |
+| GitHub.vscode-pull-request-github     | PR management                |
+| eamodio.gitlens                       | Git supercharged             |
+| usernamehw.errorlens                  | Inline error display         |
+| streetsidesoftware.code-spell-checker | Spell checking               |
 
 ### Stack-Specific Extensions
 
 **TypeScript/JavaScript:**
+
 - dbaeumer.vscode-eslint
 - esbenp.prettier-vscode
 - bradlc.vscode-tailwindcss (if Tailwind detected)
 
 **Python:**
+
 - ms-python.python
 - ms-python.vscode-pylance
 - ms-python.black-formatter
 - charliermarsh.ruff
 
 **Rust:**
+
 - rust-lang.rust-analyzer
 - serayuzgur.crates
 - tamasfe.even-better-toml
 
 **DevOps/Infrastructure:**
+
 - ms-azuretools.vscode-docker
 - hashicorp.terraform
 - redhat.vscode-yaml
@@ -194,6 +201,7 @@ Dynamically generated based on detected stack:
 ### Conflict Resolution
 
 VSCODE-ENV automatically detects and resolves:
+
 - Overlapping formatters (Prettier vs Black for Python)
 - Duplicate functionality (multiple Git extensions)
 - Deprecated extensions
@@ -232,6 +240,7 @@ VSCODE-ENV automatically detects and resolves:
 ### launch.json Generation
 
 Automatically creates debug configurations for:
+
 - Detected test frameworks
 - Application entry points
 - Docker containers
@@ -302,13 +311,13 @@ Automatically creates debug configurations for:
 
 ## Activation Modes
 
-| Mode | Trigger | Scope |
-|------|---------|-------|
-| **Full Initialization** | New project, no .vscode/ exists | Complete setup |
-| **Stack Addition** | New language/framework detected | Incremental optimization |
-| **Audit Mode** | Manual request | Review & recommendations |
-| **Sync Mode** | Team onboarding | Replicate environment |
-| **Minimal Mode** | Resource-constrained | Essential settings only |
+| Mode                    | Trigger                         | Scope                    |
+| ----------------------- | ------------------------------- | ------------------------ |
+| **Full Initialization** | New project, no .vscode/ exists | Complete setup           |
+| **Stack Addition**      | New language/framework detected | Incremental optimization |
+| **Audit Mode**          | Manual request                  | Review & recommendations |
+| **Sync Mode**           | Team onboarding                 | Replicate environment    |
+| **Minimal Mode**        | Resource-constrained            | Essential settings only  |
 
 ## Invocation Examples
 
@@ -350,18 +359,18 @@ Automatically creates debug configurations for:
   "editor.accessibilitySupport": "off",
   "editor.largeFileOptimizations": false,
   "files.maxMemoryForLargeFilesMB": 8192,
-  
+
   // Markdown for agent specs
   "[markdown]": {
     "editor.wordWrap": "on",
     "editor.quickSuggestions": { "other": true }
   },
-  
+
   // YAML for configurations
   "[yaml]": {
     "editor.autoIndent": "full"
   },
-  
+
   // Git for collaboration
   "git.autofetch": true,
   "gitlens.codeLens.enabled": true
@@ -372,10 +381,7 @@ Automatically creates debug configurations for:
 
 ```json
 {
-  "eslint.workingDirectories": [
-    { "pattern": "apps/*" },
-    { "pattern": "packages/*" }
-  ],
+  "eslint.workingDirectories": [{ "pattern": "apps/*" }, { "pattern": "packages/*" }],
   "typescript.tsdk": "node_modules/typescript/lib",
   "search.exclude": {
     "**/node_modules": true,
@@ -389,6 +395,7 @@ Automatically creates debug configurations for:
 ### Automatic Backup
 
 Before any modification, VSCODE-ENV creates:
+
 ```
 📁 .vscode-env-backups/
 ├── 📁 {timestamp}/
@@ -413,13 +420,13 @@ VSCODE-ENV reports the following metrics for collective learning:
 
 ```yaml
 environment_report:
-  agent_id: "VSCODE-ENV"
-  project_id: "${hash}"
-  detected_stacks: ["typescript", "python", "docker"]
+  agent_id: 'VSCODE-ENV'
+  project_id: '${hash}'
+  detected_stacks: ['typescript', 'python', 'docker']
   settings_applied: 47
   extensions_recommended: 12
   conflicts_resolved: 2
-  performance_improvement: "23% faster indexing"
+  performance_improvement: '23% faster indexing'
 ```
 
 ## Memory-Enhanced Learning
@@ -434,4 +441,4 @@ This agent leverages the MNEMONIC memory system to:
 
 ---
 
-*VSCODE-ENV: Infrastructure for the Elite Agent Collective—optimizing your environment so agents can focus on building exceptional software.*
+_VSCODE-ENV: Infrastructure for the Elite Agent Collective—optimizing your environment so agents can focus on building exceptional software._

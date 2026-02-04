@@ -30,37 +30,31 @@ Operating systems internals, compiler design, and systems-level performance opti
 ### Compilation Pipeline
 
 1. **Lexical Analysis** (Lexer)
-
    - Input: Source code characters
    - Output: Token stream
    - Example: "int x = 5;" → INT ID ASSIGN NUM SEMICOLON
 
 2. **Syntax Analysis** (Parser)
-
    - Input: Token stream
    - Output: Abstract Syntax Tree (AST)
    - Example: Variables, expressions, statements hierarchy
 
 3. **Semantic Analysis**
-
    - Input: AST
    - Output: Annotated AST
    - Check: Types, scoping, semantic errors
 
 4. **Intermediate Code Generation**
-
    - Input: Annotated AST
    - Output: Intermediate Representation (IR)
    - Example: Three-address code, SSA form
 
 5. **Optimization**
-
    - Input: IR
    - Output: Optimized IR
    - Techniques: Constant folding, dead code elimination, inlining
 
 6. **Code Generation**
-
    - Input: IR
    - Output: Target assembly/machine code
    - Register allocation, instruction selection

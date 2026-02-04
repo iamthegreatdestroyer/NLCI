@@ -5,24 +5,24 @@
  * Provides the high-level API for indexing codebases and finding clones.
  */
 
-import type { CodeBlock, SupportedLanguage } from '../types/code-block.js';
-import type {
-  CloneResult,
-  QueryResult,
-  CloneCluster,
-  ScanSummary,
-  QueryOptions,
-} from '../types/clone-result.js';
-import type { NLCIConfig } from '../types/config.js';
-import { DEFAULT_CONFIG, mergeConfig } from '../types/config.js';
+import { createTFIDFEmbedder } from '../embeddings/tfidf-embedder.js';
 import { LSHIndex, type LSHIndexStats } from '../lsh/lsh-index.js';
+import type {
+  CloneCluster,
+  CloneType,
+  QueryOptions,
+  QueryResult,
+  ScanSummary,
+} from '../types/clone-result.js';
+import type { CodeBlock, SupportedLanguage } from '../types/code-block.js';
+import type { NLCIConfig } from '../types/config.js';
+import { mergeConfig } from '../types/config.js';
 import {
-  SimpleCodeParser,
   MockEmbeddingModel,
+  SimpleCodeParser,
   getLanguageForFile,
   type CodeParser,
   type EmbeddingModel,
-  type ParseResult,
 } from './indexer.js';
 import { QueryEngine } from './query-engine.js';
 
@@ -108,19 +108,45 @@ export class NLCIEngine {
       numTables: this.config.lsh.numTables,
       numBits: this.config.lsh.numBits,
       dimension: this.config.lsh.dimension,
-      seed: this.config.lsh.seed,
+      ...(this.config.lsh.seed !== undefined && { seed: this.config.lsh.seed }),
       multiProbe: this.config.lsh.multiProbe,
     });
 
     // Initialize parser (use injected or default)
     this.parser = dependencies?.parser ?? new SimpleCodeParser();
 
-    // Initialize embedding model (use injected or mock)
-    this.embeddingModel =
-      dependencies?.embeddingModel ?? new MockEmbeddingModel(this.config.lsh.dimension);
+    // Initialize embedding model (use injected or create based on config)
+    this.embeddingModel = dependencies?.embeddingModel ?? this.createEmbeddingModel();
 
     // Initialize query engine
     this.queryEngine = new QueryEngine(this.index, this.embeddingModel);
+  }
+
+  /**
+   * Creates an embedding model based on configuration.
+   * @returns The configured embedding model
+   */
+  private createEmbeddingModel(): EmbeddingModel {
+    const modelType = this.config.embedding.modelType;
+    const dimension = this.config.lsh.dimension;
+
+    switch (modelType) {
+      case 'tfidf':
+        // TF-IDF embedder with TypeScript as default language
+        return createTFIDFEmbedder('typescript', dimension);
+
+      case 'onnx':
+        // ONNX model not yet implemented, fall back to mock
+        console.warn(
+          'ONNX embedding model not yet implemented, using mock embedder. ' +
+            'Set embedding.modelType to "tfidf" for production use.'
+        );
+        return new MockEmbeddingModel(dimension);
+
+      case 'mock':
+      default:
+        return new MockEmbeddingModel(dimension);
+    }
   }
 
   /**
@@ -212,7 +238,7 @@ export class NLCIEngine {
     const clusters = await this.findAllClones({ minSimilarity: 0.85 });
 
     // Count clone types
-    const typeDistribution: Record<string, number> = {
+    const typeDistribution: Record<CloneType, number> = {
       'type-1': 0,
       'type-2': 0,
       'type-3': 0,
@@ -220,37 +246,25 @@ export class NLCIEngine {
     };
 
     for (const cluster of clusters) {
-      typeDistribution[cluster.cloneType] += cluster.blocks.length;
-    }
-
-    // Collect unique files
-    const files = new Set(blocks.map((b) => b.filePath));
-
-    // Calculate total lines
-    const totalLines = blocks.reduce((sum, b) => sum + (b.endLine - b.startLine + 1), 0);
-
-    // Calculate clone lines
-    const cloneBlocks = new Set<string>();
-    for (const cluster of clusters) {
-      for (const block of cluster.blocks) {
-        cloneBlocks.add(block.id);
+      const count = typeDistribution[cluster.cloneType];
+      if (count !== undefined) {
+        typeDistribution[cluster.cloneType] = count + cluster.blocks.length;
       }
     }
 
-    const cloneLines = blocks
-      .filter((b) => cloneBlocks.has(b.id))
-      .reduce((sum, b) => sum + (b.endLine - b.startLine + 1), 0);
+    // Collect unique files and languages
+    const files = new Set(blocks.map((b) => b.filePath));
+    const languages = [...new Set(blocks.map((b) => b.language))] as SupportedLanguage[];
 
     const summary: ScanSummary = {
-      totalFiles: files.size,
-      totalBlocks: blocks.length,
-      totalLines,
-      cloneLines,
-      clonePercentage: totalLines > 0 ? (cloneLines / totalLines) * 100 : 0,
-      cloneCount: clusters.length,
-      typeDistribution,
-      scanDuration: this.scanSummary?.scanDuration ?? 0,
-      indexSize: this.index.size,
+      filesScanned: files.size,
+      blocksIndexed: blocks.length,
+      clonePairsFound: clusters.reduce((sum, c) => sum + c.blocks.length - 1, 0),
+      clonesByType: typeDistribution,
+      languages,
+      scanTimeMs: this.scanSummary?.scanTimeMs ?? 0,
+      indexBuildTimeMs: 0,
+      avgQueryTimeMs: 0,
     };
 
     this.scanSummary = summary;
@@ -298,6 +312,32 @@ export class NLCIEngine {
   clear(): void {
     this.index.clear();
     this.scanSummary = null;
+  }
+
+  /**
+   * Exports the engine state for in-memory serialization.
+   * Unlike save(), this returns the data directly without persistence.
+   * Useful for testing and in-process data transfer.
+   */
+  exportState(): {
+    version: string;
+    indexState: ReturnType<LSHIndex['exportState']>;
+    config: NLCIConfig;
+  } {
+    return {
+      version: '1.0',
+      indexState: this.index.exportState(),
+      config: this.config,
+    };
+  }
+
+  /**
+   * Imports engine state from exported data.
+   * Unlike load(), this accepts data directly without persistence.
+   * Useful for testing and in-process data transfer.
+   */
+  importState(state: { indexState: Parameters<LSHIndex['importState']>[0] }): void {
+    this.index.importState(state.indexState);
   }
 
   /**

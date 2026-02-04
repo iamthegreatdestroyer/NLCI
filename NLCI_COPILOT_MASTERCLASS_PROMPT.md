@@ -1,4 +1,5 @@
 # NLCI Project Initialization: Autonomous Scaffolding Directive
+
 ## Master Prompt for GitHub Copilot Agent Mode
 
 ---
@@ -16,7 +17,9 @@ You are the **Lead Architect Agent** for the Neural-LSH Code Intelligence (NLCI)
 ## 📋 PROJECT SPECIFICATION
 
 ### What NLCI Does
+
 Neural-LSH Code Intelligence is a **sub-linear code similarity detection system** that:
+
 1. Indexes codebases in O(n) time using Locality-Sensitive Hashing
 2. Queries for similar code blocks in O(1) constant time
 3. Detects semantic clones across languages via neural embeddings
@@ -24,7 +27,9 @@ Neural-LSH Code Intelligence is a **sub-linear code similarity detection system*
 5. Integrates as VS Code extension, CLI tool, and embeddable library
 
 ### Core Innovation
+
 Traditional clone detection is O(n²). NLCI achieves O(1) query time by:
+
 - Projecting code embeddings through random hyperplanes
 - Bucketing similar vectors via hash collisions
 - Using multiple hash tables (L tables × K bits) for recall guarantees
@@ -204,6 +209,7 @@ NLCI/
 Generate production-grade configurations:
 
 #### `package.json` (root)
+
 ```json
 {
   "name": "nlci-monorepo",
@@ -261,18 +267,14 @@ Generate production-grade configurations:
     "vitest": "^1.2.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md}": ["prettier --write"]
   }
 }
 ```
 
 #### `turbo.json`
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -311,6 +313,7 @@ Generate production-grade configurations:
 ```
 
 #### `pnpm-workspace.yaml`
+
 ```yaml
 packages:
   - 'apps/*'
@@ -318,6 +321,7 @@ packages:
 ```
 
 #### `.github/workflows/ci.yml`
+
 ```yaml
 name: CI
 
@@ -337,7 +341,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x, 22.x]
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -397,15 +401,16 @@ jobs:
 ### Phase 3: Core Package Implementation [EXECUTE SYSTEMATICALLY]
 
 #### `packages/core/src/index.ts` - Public API
+
 ```typescript
 /**
  * NLCI - Neural-LSH Code Intelligence
  * Sub-linear semantic code clone detection
- * 
+ *
  * @packageDocumentation
  * @module @nlci/core
  * @license AGPL-3.0-or-later
- * 
+ *
  * Commercial licensing available at https://github.com/iamthegreatdestroyer/NLCI
  */
 
@@ -425,10 +430,11 @@ export { version } from './version';
 ```
 
 #### `packages/core/src/lsh/lsh-index.ts` - Core LSH Implementation
+
 ```typescript
 /**
  * Multi-table Locality-Sensitive Hashing Index
- * 
+ *
  * Achieves O(1) query time for approximate nearest neighbor search
  * by projecting high-dimensional embeddings through random hyperplanes.
  */
@@ -475,7 +481,7 @@ export class LSHIndex {
     // Initialize L hash tables with K random hyperplanes each
     this.tables = [];
     this.projections = [];
-    
+
     for (let t = 0; t < this.config.numTables; t++) {
       const projection = new HyperplaneProjection(
         this.config.embeddingDim,
@@ -502,7 +508,7 @@ export class LSHIndex {
       const hash = this.projections[t].project(embedding);
       this.tables[t].insert(hash, block);
     }
-    
+
     this.indexedCount++;
   }
 
@@ -517,7 +523,7 @@ export class LSHIndex {
     for (let t = 0; t < this.config.numTables; t++) {
       const hash = this.projections[t].project(embedding);
       const bucket = this.tables[t].get(hash);
-      
+
       for (const block of bucket) {
         const key = block.id;
         const existing = candidates.get(key);
@@ -591,10 +597,11 @@ export interface LSHIndexStats {
 ```
 
 #### `packages/core/src/lsh/hyperplane.ts` - Random Hyperplane Projection
+
 ```typescript
 /**
  * Random Hyperplane Projection for LSH
- * 
+ *
  * Projects high-dimensional vectors to binary hash codes using
  * random hyperplanes. Preserves angular similarity with high probability.
  */
@@ -613,7 +620,7 @@ export class HyperplaneProjection {
 
     // Generate K random hyperplanes using seeded PRNG
     const rng = createSeededRNG(seed);
-    
+
     for (let k = 0; k < numBits; k++) {
       const hyperplane = new Float32Array(dim);
       for (let d = 0; d < dim; d++) {
@@ -632,17 +639,17 @@ export class HyperplaneProjection {
    */
   project(embedding: Float32Array): bigint {
     let hash = 0n;
-    
+
     for (let k = 0; k < this.numBits; k++) {
       // Compute dot product with hyperplane
       const dot = dotProduct(embedding, this.hyperplanes[k]);
-      
+
       // Set bit if dot product is positive
       if (dot >= 0) {
         hash |= 1n << BigInt(k);
       }
     }
-    
+
     return hash;
   }
 }
@@ -650,14 +657,14 @@ export class HyperplaneProjection {
 // Seeded PRNG with Gaussian output
 function createSeededRNG(seed: number) {
   let state = seed;
-  
+
   const next = () => {
     state = (state * 1103515245 + 12345) & 0x7fffffff;
     return state / 0x7fffffff;
   };
-  
+
   let spare: number | null = null;
-  
+
   return {
     next,
     nextGaussian(): number {
@@ -666,7 +673,7 @@ function createSeededRNG(seed: number) {
         spare = null;
         return val;
       }
-      
+
       // Box-Muller transform
       let u, v, s;
       do {
@@ -674,8 +681,8 @@ function createSeededRNG(seed: number) {
         v = next() * 2 - 1;
         s = u * u + v * v;
       } while (s >= 1 || s === 0);
-      
-      const mul = Math.sqrt(-2 * Math.log(s) / s);
+
+      const mul = Math.sqrt((-2 * Math.log(s)) / s);
       spare = v * mul;
       return u * mul;
     },
@@ -707,11 +714,12 @@ function normalize(vec: Float32Array): void {
 ### Phase 4: CLI Application [EXECUTE AFTER CORE]
 
 #### `apps/cli/src/index.ts`
+
 ```typescript
 #!/usr/bin/env node
 /**
  * NLCI CLI - Neural-LSH Code Intelligence Command Line Interface
- * 
+ *
  * @license AGPL-3.0-or-later
  */
 
@@ -742,6 +750,7 @@ program.parse();
 ```
 
 #### `apps/cli/src/commands/scan.ts`
+
 ```typescript
 /**
  * Scan command - Detect code clones in a codebase
@@ -764,7 +773,7 @@ export const scanCommand = new Command('scan')
   .option('--cross-language', 'Enable cross-language detection')
   .action(async (path: string, options) => {
     const spinner = ora('Initializing NLCI engine...').start();
-    
+
     try {
       const engine = await NLCIEngine.create({
         threshold: parseFloat(options.threshold),
@@ -777,17 +786,16 @@ export const scanCommand = new Command('scan')
         include: options.include,
         exclude: options.exclude,
       });
-      
+
       spinner.text = `Indexed ${indexStats.fileCount} files, ${indexStats.blockCount} code blocks`;
 
       spinner.text = 'Detecting clones...';
       const clusters = await engine.findClones();
-      
+
       spinner.succeed(`Found ${clusters.length} clone clusters`);
 
       // Output results
       formatOutput(clusters, options.output);
-
     } catch (error) {
       spinner.fail('Scan failed');
       console.error(chalk.red(error instanceof Error ? error.message : error));
@@ -813,16 +821,19 @@ function formatOutput(clusters: CloneCluster[], format: string): void {
 
 function printCloneTable(clusters: CloneCluster[]): void {
   console.log(chalk.bold('\nClone Clusters:\n'));
-  
+
   for (const [i, cluster] of clusters.entries()) {
-    const severity = cluster.similarity > 0.95 
-      ? chalk.red('●') 
-      : cluster.similarity > 0.85 
-        ? chalk.yellow('●') 
-        : chalk.green('●');
-    
-    console.log(`${severity} Cluster #${i + 1} (${(cluster.similarity * 100).toFixed(1)}% similar)`);
-    
+    const severity =
+      cluster.similarity > 0.95
+        ? chalk.red('●')
+        : cluster.similarity > 0.85
+          ? chalk.yellow('●')
+          : chalk.green('●');
+
+    console.log(
+      `${severity} Cluster #${i + 1} (${(cluster.similarity * 100).toFixed(1)}% similar)`
+    );
+
     for (const block of cluster.blocks) {
       console.log(chalk.gray(`   ${block.file}:${block.startLine}-${block.endLine}`));
     }
@@ -834,6 +845,7 @@ function printCloneTable(clusters: CloneCluster[]): void {
 ### Phase 5: VS Code Extension [EXECUTE AFTER CLI]
 
 #### `apps/vscode/package.json`
+
 ```json
 {
   "name": "nlci-vscode",
@@ -848,14 +860,8 @@ function printCloneTable(clusters: CloneCluster[]): void {
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": [
-    "Linters",
-    "Programming Languages",
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "categories": ["Linters", "Programming Languages", "Other"],
+  "activationEvents": ["onStartupFinished"],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -926,6 +932,7 @@ function printCloneTable(clusters: CloneCluster[]): void {
 ### IMMEDIATE ACTIONS (Execute in Order):
 
 1. **Clone & Initialize**
+
    ```bash
    git clone https://github.com/iamthegreatdestroyer/NLCI.git
    cd NLCI
@@ -966,6 +973,7 @@ function printCloneTable(clusters: CloneCluster[]): void {
 ### QUALITY GATES
 
 Before marking any phase complete:
+
 - [ ] All files compile without errors
 - [ ] ESLint passes with no warnings
 - [ ] Core functionality has unit tests
@@ -976,6 +984,7 @@ Before marking any phase complete:
 ## 📊 SUCCESS METRICS
 
 The scaffolding is complete when:
+
 1. `pnpm install` succeeds
 2. `pnpm build` produces outputs for all packages
 3. `pnpm test` runs (even if tests are placeholder)
@@ -993,14 +1002,14 @@ Include at the top of every source file:
 /**
  * NLCI - Neural-LSH Code Intelligence
  * Copyright (C) 2026 Stevo (sgbilod)
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Commercial licensing available at https://github.com/iamthegreatdestroyer/NLCI
- * 
+ *
  * @license AGPL-3.0-or-later
  */
 ```

@@ -31,13 +31,11 @@ export const statsCommand = new Command('stats')
     try {
       // Load index
       const indexPath = path.resolve(options.index ?? '.nlci-index');
-      
+
       try {
         await fs.access(indexPath);
       } catch {
-        throw new Error(
-          `Index not found at ${indexPath}. Run 'nlci scan' first.`,
-        );
+        throw new Error(`Index not found at ${indexPath}. Run 'nlci scan' first.`);
       }
 
       const config = await loadConfig(process.cwd());
@@ -60,8 +58,8 @@ export const statsCommand = new Command('stats')
               indexSize: fileSize,
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         return;
       }
@@ -77,10 +75,7 @@ export const statsCommand = new Command('stats')
         ['Bits per hash', String(stats.bitsPerHash)],
         ['Embedding dimension', String(stats.dimension)],
         ['Index size', formatBytes(fileSize)],
-        [
-          'Avg blocks/bucket',
-          stats.averageBlocksPerBucket?.toFixed(2) ?? 'N/A',
-        ],
+        ['Avg blocks/bucket', stats.averageBlocksPerBucket?.toFixed(2) ?? 'N/A'],
         ['Max bucket size', String(stats.maxBucketSize ?? 'N/A')],
       ];
 
@@ -92,14 +87,14 @@ export const statsCommand = new Command('stats')
       console.log(`  Bits (K):       ${stats.bitsPerHash}`);
       console.log(`  Dimension:      ${stats.dimension}`);
       console.log(
-        `  Hash space:     2^${stats.bitsPerHash} = ${Math.pow(2, stats.bitsPerHash)} buckets per table`,
+        `  Hash space:     2^${stats.bitsPerHash} = ${Math.pow(2, stats.bitsPerHash)} buckets per table`
       );
 
       // Performance estimates
       console.log(chalk.bold('\nPerformance Estimates:'));
       console.log(`  Query time:     O(1) - constant time`);
       console.log(
-        `  Collision prob: ~${(1 / Math.pow(2, stats.bitsPerHash) * 100).toFixed(4)}% per table`,
+        `  Collision prob: ~${((1 / Math.pow(2, stats.bitsPerHash)) * 100).toFixed(4)}% per table`
       );
       console.log(`  Expected candidates: ~${stats.tableCount} per query`);
     } catch (error) {

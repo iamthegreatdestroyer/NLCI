@@ -5,7 +5,7 @@
  */
 
 import * as vscode from 'vscode';
-import { NlciService } from '../services/nlci-service';
+import type { NlciService } from '../services/nlci-service';
 
 /**
  * Status bar manager for NLCI
@@ -52,7 +52,7 @@ export class StatusBarManager implements vscode.Disposable {
     const stats = this.service.getStats();
     if (stats) {
       this.statusBarItem.text = `$(search) NLCI: ${stats.totalBlocks} blocks`;
-      this.statusBarItem.tooltip = `NLCI Index\n${stats.totalFiles} files\n${stats.totalBlocks} code blocks\nClick for stats`;
+      this.statusBarItem.tooltip = `NLCI Index\n${stats.totalBlocks} code blocks\n${stats.totalBuckets} buckets\nClick for stats`;
       this.statusBarItem.command = 'nlci.showStats';
     } else {
       this.statusBarItem.text = '$(check) NLCI';

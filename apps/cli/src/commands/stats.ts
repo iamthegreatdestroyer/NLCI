@@ -40,7 +40,7 @@ export const statsCommand = new Command('stats')
 
       const config = await loadConfig(process.cwd());
       const engine = new NLCIEngine(config);
-      await engine.load(indexPath);
+      await engine.load();
 
       const stats = engine.getStats();
 
@@ -69,34 +69,34 @@ export const statsCommand = new Command('stats')
 
       const data = [
         ['Metric', 'Value'],
-        ['Total blocks', String(stats.totalBlockCount)],
-        ['Unique blocks', String(stats.uniqueBlockCount)],
-        ['Hash tables', String(stats.tableCount)],
-        ['Bits per hash', String(stats.bitsPerHash)],
+        ['Total blocks', String(stats.totalBlocks)],
+        ['Unique blocks', String(stats.totalBlocks)],
+        ['Hash tables', String(stats.numTables)],
+        ['Bits per hash', String(stats.numBits)],
         ['Embedding dimension', String(stats.dimension)],
         ['Index size', formatBytes(fileSize)],
-        ['Avg blocks/bucket', stats.averageBlocksPerBucket?.toFixed(2) ?? 'N/A'],
-        ['Max bucket size', String(stats.maxBucketSize ?? 'N/A')],
+        ['Avg blocks/bucket', stats.avgBucketSize?.toFixed(2) ?? 'N/A'],
+        ['Load factor', String(stats.loadFactor?.toFixed(2) ?? 'N/A')],
       ];
 
       console.log(table(data));
 
       // LSH configuration
       console.log(chalk.bold('\nLSH Configuration:'));
-      console.log(`  Tables (L):     ${stats.tableCount}`);
-      console.log(`  Bits (K):       ${stats.bitsPerHash}`);
+      console.log(`  Tables (L):     ${stats.numTables}`);
+      console.log(`  Bits (K):       ${stats.numBits}`);
       console.log(`  Dimension:      ${stats.dimension}`);
       console.log(
-        `  Hash space:     2^${stats.bitsPerHash} = ${Math.pow(2, stats.bitsPerHash)} buckets per table`
+        `  Hash space:     2^${stats.numBits} = ${Math.pow(2, stats.numBits)} buckets per table`
       );
 
       // Performance estimates
       console.log(chalk.bold('\nPerformance Estimates:'));
       console.log(`  Query time:     O(1) - constant time`);
       console.log(
-        `  Collision prob: ~${((1 / Math.pow(2, stats.bitsPerHash)) * 100).toFixed(4)}% per table`
+        `  Collision prob: ~${((1 / Math.pow(2, stats.numBits)) * 100).toFixed(4)}% per table`
       );
-      console.log(`  Expected candidates: ~${stats.tableCount} per query`);
+      console.log(`  Expected candidates: ~${stats.numTables} per query`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       spinner.fail(chalk.red(`Failed to load stats: ${message}`));

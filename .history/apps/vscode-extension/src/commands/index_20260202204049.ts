@@ -47,10 +47,7 @@ export function registerCommands(
 
     // Open settings command
     vscode.commands.registerCommand('nlci.openSettings', () => {
-      vscode.commands.executeCommand(
-        'workbench.action.openSettings',
-        '@ext:nlci.nlci-vscode'
-      );
+      vscode.commands.executeCommand('workbench.action.openSettings', '@ext:nlci.nlci-vscode');
     }),
 
     // Navigate to clone command (internal)
@@ -119,17 +116,12 @@ async function findSimilarCode(service: NlciService): Promise<void> {
 
   const selectedText = editor.document.getText(selection);
   if (selectedText.trim().length < 10) {
-    vscode.window.showWarningMessage(
-      'NLCI: Please select a larger code block'
-    );
+    vscode.window.showWarningMessage('NLCI: Please select a larger code block');
     return;
   }
 
   try {
-    const results = await service.findSimilar(
-      selectedText,
-      editor.document.uri.fsPath
-    );
+    const results = await service.findSimilar(selectedText, editor.document.uri.fsPath);
 
     if (results.length === 0) {
       vscode.window.showInformationMessage('NLCI: No similar code found');
@@ -213,9 +205,7 @@ async function showStatistics(service: NlciService): Promise<void> {
   const stats = service.getStats();
 
   if (!stats) {
-    vscode.window.showWarningMessage(
-      'NLCI: No index available. Please scan the workspace first.'
-    );
+    vscode.window.showWarningMessage('NLCI: No index available. Please scan the workspace first.');
     return;
   }
 

@@ -4,10 +4,10 @@
  * Provides code lens annotations for detected clones
  */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
 import type { CloneResult } from '@nlci/core';
-import { NlciService } from '../services/nlci-service';
+import * as path from 'path';
+import * as vscode from 'vscode';
+import type { NlciService } from '../services/nlci-service';
 
 /**
  * CodeLens provider for clone annotations
@@ -35,13 +35,17 @@ export class CloneCodeLensProvider implements vscode.CodeLensProvider {
     document: vscode.TextDocument,
     token: vscode.CancellationToken
   ): Promise<vscode.CodeLens[]> {
+    console.log('[CodeLens] provideCodeLenses called for:', document.uri.fsPath);
+
     // Check if code lens is enabled
     const config = vscode.workspace.getConfiguration('nlci');
     if (!config.get<boolean>('showCodeLens', true)) {
+      console.log('[CodeLens] CodeLens disabled in config');
       return [];
     }
 
     if (!this.service.hasIndex()) {
+      console.log('[CodeLens] No index available');
       return [];
     }
 
@@ -51,8 +55,12 @@ export class CloneCodeLensProvider implements vscode.CodeLensProvider {
       // Get clones for this file (with caching)
       let clones = this.cache.get(filePath);
       if (!clones) {
+        console.log('[CodeLens] Fetching clones for file...');
         clones = await this.service.getClonesForFile(filePath);
+        console.log('[CodeLens] Found', clones.length, 'clone pairs');
         this.cache.set(filePath, clones);
+      } else {
+        console.log('[CodeLens] Using cached clones:', clones.length, 'pairs');
       }
 
       if (token.isCancellationRequested) {
@@ -94,12 +102,16 @@ export class CloneCodeLensProvider implements vscode.CodeLensProvider {
 
         const lens = new vscode.CodeLens(range, {
           title,
-          command: 'nlci.findSimilar',
-          tooltip: 'Click to find similar code blocks',
+          command: 'nlci.navigateToClone',
+          tooltip: 'Click to navigate to clone location',
+          arguments: [clone.target.filePath, clone.target.startLine],
         });
 
         lenses.push(lens);
       }
+
+      console.log('[CodeLens] Created', lenses.length, 'CodeLens objects');
+      console.log('[CodeLens] Sample lens:', JSON.stringify(lenses[0], null, 2));
 
       return lenses;
     } catch (error) {

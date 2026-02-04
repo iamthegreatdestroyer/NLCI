@@ -74,7 +74,7 @@ export class BucketStore {
   constructor(
     numTables: number,
     maxBucketSize: number = 1000,
-    storage: BucketStorage = new MemoryStorage(),
+    storage: BucketStorage = new MemoryStorage()
   ) {
     this.tables = new Map();
     this.blockIndex = new Map();
@@ -141,12 +141,9 @@ export class BucketStore {
    * @returns Unique code blocks across all tables
    */
   queryAll(
-    hashesPerTable: Map<number, readonly bigint[]>,
+    hashesPerTable: Map<number, readonly bigint[]>
   ): Map<string, { block: CodeBlock; tableMatches: number }> {
-    const results = new Map<
-      string,
-      { block: CodeBlock; tableMatches: number }
-    >();
+    const results = new Map<string, { block: CodeBlock; tableMatches: number }>();
 
     for (const [tableIndex, hashes] of hashesPerTable) {
       const blocks = this.query(tableIndex, hashes);

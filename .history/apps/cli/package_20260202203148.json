@@ -8,10 +8,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -22,13 +19,7 @@
     "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
-  "keywords": [
-    "nlci",
-    "cli",
-    "code-similarity",
-    "clone-detection",
-    "lsh"
-  ],
+  "keywords": ["nlci", "cli", "code-similarity", "clone-detection", "lsh"],
   "author": "",
   "license": "AGPL-3.0-or-later",
   "repository": {

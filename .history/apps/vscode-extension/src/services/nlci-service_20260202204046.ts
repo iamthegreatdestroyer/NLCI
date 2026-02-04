@@ -7,12 +7,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import {
-  NlciEngine,
-  type NlciConfig,
-  type CodeBlock,
-  type CloneResult,
-} from '@nlci/core';
+import { NlciEngine, type NlciConfig, type CodeBlock, type CloneResult } from '@nlci/core';
 import { Logger } from '../utils/logger';
 
 /**
@@ -181,10 +176,7 @@ export class NlciService implements vscode.Disposable {
   /**
    * Find similar code blocks
    */
-  async findSimilar(
-    code: string,
-    filePath?: string
-  ): Promise<CloneResult[]> {
+  async findSimilar(code: string, filePath?: string): Promise<CloneResult[]> {
     if (!this.engine) {
       throw new Error('Index not loaded. Please scan the workspace first.');
     }

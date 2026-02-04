@@ -197,9 +197,7 @@ export class HashTable {
     }
 
     const avgSize =
-      bucketSizes.length > 0
-        ? bucketSizes.reduce((a, b) => a + b, 0) / bucketSizes.length
-        : 0;
+      bucketSizes.length > 0 ? bucketSizes.reduce((a, b) => a + b, 0) / bucketSizes.length : 0;
 
     return {
       numBuckets: this.buckets.size,

@@ -11,10 +11,7 @@ import type { CloneResult } from '@nlci/core';
 /**
  * Show clone report in a webview panel
  */
-export function showCloneReport(
-  context: vscode.ExtensionContext,
-  clones: CloneResult[]
-): void {
+export function showCloneReport(context: vscode.ExtensionContext, clones: CloneResult[]): void {
   const panel = vscode.window.createWebviewPanel(
     'nlciReport',
     'NLCI Clone Report',
@@ -60,8 +57,7 @@ function getReportHtml(clones: CloneResult[]): string {
   // Calculate summary statistics
   const totalClones = clones.length;
   const uniqueFiles = new Set(clones.map((c) => c.source.filePath)).size;
-  const avgSimilarity =
-    clones.reduce((sum, c) => sum + c.similarity, 0) / totalClones || 0;
+  const avgSimilarity = clones.reduce((sum, c) => sum + c.similarity, 0) / totalClones || 0;
 
   // Generate clone rows
   const cloneRows = clones

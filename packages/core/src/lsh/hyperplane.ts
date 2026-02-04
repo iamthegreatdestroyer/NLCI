@@ -53,10 +53,11 @@ export class SeededRandom {
   }
 
   private splitmix64(x: number): number {
-    x = (x + 0x9e3779b97f4a7c15) | 0;
-    x = Math.imul(x ^ (x >>> 30), 0xbf58476d1ce4e5b9);
-    x = Math.imul(x ^ (x >>> 27), 0x94d049bb133111eb);
-    return x ^ (x >>> 31);
+    // Using 32-bit compatible constants for SplitMix-style mixing
+    x = (x + 0x9e3779b9) | 0;
+    x = Math.imul(x ^ (x >>> 15), 0x85ebca6b);
+    x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35);
+    return x ^ (x >>> 16);
   }
 
   /**
@@ -208,7 +209,7 @@ function computeDotProduct(a: Float32Array | number[], b: Float32Array): number 
  * @param numBits - Number of bits in the hash
  * @returns Number of differing bits
  */
-export function hammingDistance(hash1: bigint, hash2: bigint, numBits: number): number {
+export function hammingDistance(hash1: bigint, hash2: bigint, _numBits: number): number {
   let xor = hash1 ^ hash2;
   let distance = 0;
 

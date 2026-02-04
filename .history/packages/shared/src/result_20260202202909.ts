@@ -73,20 +73,14 @@ export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
 /**
  * Maps a Result's value if it's Ok.
  */
-export function map<T, U, E>(
-  result: Result<T, E>,
-  fn: (value: T) => U,
-): Result<U, E> {
+export function map<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> {
   return isOk(result) ? ok(fn(result.value)) : result;
 }
 
 /**
  * Maps a Result's error if it's Err.
  */
-export function mapErr<T, E, F>(
-  result: Result<T, E>,
-  fn: (error: E) => F,
-): Result<T, F> {
+export function mapErr<T, E, F>(result: Result<T, E>, fn: (error: E) => F): Result<T, F> {
   return isErr(result) ? err(fn(result.error)) : result;
 }
 
@@ -95,7 +89,7 @@ export function mapErr<T, E, F>(
  */
 export function flatMap<T, U, E>(
   result: Result<T, E>,
-  fn: (value: T) => Result<U, E>,
+  fn: (value: T) => Result<U, E>
 ): Result<U, E> {
   return isOk(result) ? fn(result.value) : result;
 }
@@ -103,9 +97,7 @@ export function flatMap<T, U, E>(
 /**
  * Wraps an async function that might throw in a Result.
  */
-export async function tryAsync<T>(
-  fn: () => Promise<T>,
-): Promise<Result<T, Error>> {
+export async function tryAsync<T>(fn: () => Promise<T>): Promise<Result<T, Error>> {
   try {
     return ok(await fn());
   } catch (error) {

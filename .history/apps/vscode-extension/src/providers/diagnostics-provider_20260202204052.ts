@@ -17,8 +17,7 @@ export class CloneDiagnosticsProvider implements vscode.Disposable {
   private readonly disposables: vscode.Disposable[] = [];
 
   constructor(private readonly service: NlciService) {
-    this.diagnosticCollection =
-      vscode.languages.createDiagnosticCollection('nlci');
+    this.diagnosticCollection = vscode.languages.createDiagnosticCollection('nlci');
 
     // Subscribe to document events
     this.disposables.push(
@@ -68,9 +67,7 @@ export class CloneDiagnosticsProvider implements vscode.Disposable {
       const clones = await this.service.getClonesForFile(filePath);
 
       // Filter to only source locations in this file
-      const sourceClones = clones.filter(
-        (c) => c.source.filePath === filePath
-      );
+      const sourceClones = clones.filter((c) => c.source.filePath === filePath);
 
       const diagnostics = this.createDiagnostics(document, sourceClones);
       this.diagnosticCollection.set(document.uri, diagnostics);
@@ -107,8 +104,7 @@ export class CloneDiagnosticsProvider implements vscode.Disposable {
       // Count all clones at this location
       const clonesAtLocation = clones.filter(
         (c) =>
-          c.source.startLine === clone.source.startLine &&
-          c.source.endLine === clone.source.endLine
+          c.source.startLine === clone.source.startLine && c.source.endLine === clone.source.endLine
       );
 
       const range = new vscode.Range(

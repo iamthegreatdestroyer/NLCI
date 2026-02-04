@@ -217,6 +217,35 @@ export class HashTable {
   }
 
   /**
+   * Exports the hash table state for in-memory transfer.
+   */
+  exportState(): { buckets: Array<{ hash: bigint; blocks: CodeBlock[] }> } {
+    const buckets: Array<{ hash: bigint; blocks: CodeBlock[] }> = [];
+
+    for (const bucket of this.buckets.values()) {
+      buckets.push({
+        hash: bucket.hash,
+        blocks: [...bucket.blocks],
+      });
+    }
+
+    return { buckets };
+  }
+
+  /**
+   * Imports hash table state from exported data.
+   */
+  importState(state: { buckets: Array<{ hash: bigint; blocks: CodeBlock[] }> }): void {
+    this.clear();
+
+    for (const { hash, blocks } of state.buckets) {
+      for (const block of blocks) {
+        this.insert(hash, block);
+      }
+    }
+  }
+
+  /**
    * Serializes the hash table to a JSON-compatible format.
    */
   toJSON(): SerializedHashTable {

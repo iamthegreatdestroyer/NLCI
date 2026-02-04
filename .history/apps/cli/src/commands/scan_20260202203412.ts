@@ -48,7 +48,7 @@ export const scanCommand = new Command('scan')
     try {
       // Resolve target path
       const absolutePath = path.resolve(targetPath);
-      
+
       // Check if path exists
       const stat = await fs.stat(absolutePath);
       if (!stat.isDirectory()) {
@@ -67,9 +67,7 @@ export const scanCommand = new Command('scan')
       if (!options.force) {
         try {
           await fs.access(indexPath);
-          spinner.warn(
-            'Index already exists. Use --force to rebuild.',
-          );
+          spinner.warn('Index already exists. Use --force to rebuild.');
           return;
         } catch {
           // Index doesn't exist, continue
@@ -110,14 +108,11 @@ export const scanCommand = new Command('scan')
           processedFiles++;
 
           if (options.verbose) {
-            spinner.info(
-              `  ${relativePath}: ${summary.totalBlocks} blocks`,
-            );
+            spinner.info(`  ${relativePath}: ${summary.totalBlocks} blocks`);
           }
         } catch (error) {
           if (options.verbose) {
-            const message =
-              error instanceof Error ? error.message : String(error);
+            const message = error instanceof Error ? error.message : String(error);
             spinner.warn(`  Skipped ${relativePath}: ${message}`);
           }
         }
@@ -149,10 +144,7 @@ export const scanCommand = new Command('scan')
     }
   });
 
-function mergeOptions(
-  config: Partial<NLCIConfig>,
-  options: ScanOptions,
-): Partial<NLCIConfig> {
+function mergeOptions(config: Partial<NLCIConfig>, options: ScanOptions): Partial<NLCIConfig> {
   return {
     ...config,
     parser: {
@@ -169,10 +161,7 @@ function mergeOptions(
   };
 }
 
-async function findFiles(
-  basePath: string,
-  config: Partial<NLCIConfig>,
-): Promise<string[]> {
+async function findFiles(basePath: string, config: Partial<NLCIConfig>): Promise<string[]> {
   const include = config.parser?.includePatterns ?? [
     '**/*.ts',
     '**/*.tsx',

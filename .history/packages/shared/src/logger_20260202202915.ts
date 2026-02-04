@@ -98,9 +98,7 @@ export class Logger {
   child(prefix: string): Logger {
     return new Logger({
       ...this.config,
-      prefix: this.config.prefix
-        ? `${this.config.prefix}:${prefix}`
-        : prefix,
+      prefix: this.config.prefix ? `${this.config.prefix}:${prefix}` : prefix,
     });
   }
 

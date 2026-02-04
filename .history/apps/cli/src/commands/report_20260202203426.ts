@@ -28,11 +28,7 @@ export const reportCommand = new Command('report')
   .description('Generate a code clone report')
   .option('-x, --index <path>', 'Path to index file', '.nlci-index')
   .option('-o, --output <path>', 'Output file path')
-  .option(
-    '-f, --format <format>',
-    'Report format (console, json, html, markdown)',
-    'console',
-  )
+  .option('-f, --format <format>', 'Report format (console, json, html, markdown)', 'console')
   .option('-t, --threshold <value>', 'Minimum similarity threshold', '0.85')
   .action(async (options: ReportOptions) => {
     const spinner = ora('Generating report...').start();
@@ -40,13 +36,11 @@ export const reportCommand = new Command('report')
     try {
       // Load index
       const indexPath = path.resolve(options.index ?? '.nlci-index');
-      
+
       try {
         await fs.access(indexPath);
       } catch {
-        throw new Error(
-          `Index not found at ${indexPath}. Run 'nlci scan' first.`,
-        );
+        throw new Error(`Index not found at ${indexPath}. Run 'nlci scan' first.`);
       }
 
       spinner.text = 'Loading index...';
@@ -111,25 +105,25 @@ function formatConsole(summary: ScanSummary): void {
       'Type-1',
       'Exact clones',
       String(summary.clonesByType['type-1'] ?? 0),
-      `${((summary.clonesByType['type-1'] ?? 0) / summary.totalBlocks * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-1'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
     ],
     [
       'Type-2',
       'Parameterized clones',
       String(summary.clonesByType['type-2'] ?? 0),
-      `${((summary.clonesByType['type-2'] ?? 0) / summary.totalBlocks * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-2'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
     ],
     [
       'Type-3',
       'Near-miss clones',
       String(summary.clonesByType['type-3'] ?? 0),
-      `${((summary.clonesByType['type-3'] ?? 0) / summary.totalBlocks * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-3'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
     ],
     [
       'Type-4',
       'Semantic clones',
       String(summary.clonesByType['type-4'] ?? 0),
-      `${((summary.clonesByType['type-4'] ?? 0) / summary.totalBlocks * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-4'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
     ],
   ];
   console.log(table([typeHeaders, ...typeRows]));
@@ -137,10 +131,7 @@ function formatConsole(summary: ScanSummary): void {
   if (summary.hotspots && summary.hotspots.length > 0) {
     console.log(chalk.bold('Hotspots (files with most clones):'));
     const hotspotHeaders = ['File', 'Clone Count'];
-    const hotspotRows = summary.hotspots.slice(0, 10).map((h) => [
-      h.file,
-      String(h.count),
-    ]);
+    const hotspotRows = summary.hotspots.slice(0, 10).map((h) => [h.file, String(h.count)]);
     console.log(table([hotspotHeaders, ...hotspotRows]));
   }
 }

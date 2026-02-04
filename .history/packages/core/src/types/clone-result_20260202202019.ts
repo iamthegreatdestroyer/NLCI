@@ -165,9 +165,7 @@ export const DEFAULT_QUERY_OPTIONS: Required<QueryOptions> = {
 /**
  * Merges user options with defaults.
  */
-export function mergeQueryOptions(
-  options?: QueryOptions,
-): Required<QueryOptions> {
+export function mergeQueryOptions(options?: QueryOptions): Required<QueryOptions> {
   return {
     ...DEFAULT_QUERY_OPTIONS,
     ...options,

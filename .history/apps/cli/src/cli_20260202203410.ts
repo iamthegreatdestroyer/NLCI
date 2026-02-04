@@ -27,7 +27,7 @@ program
 ╚═══════════════════════════════════════════════════════════╝
 
 Index your codebase in O(n) time, query for similar code in O(1).
-`),
+`)
   )
   .version(version, '-v, --version', 'Display version number')
   .option('-c, --config <path>', 'Path to configuration file')

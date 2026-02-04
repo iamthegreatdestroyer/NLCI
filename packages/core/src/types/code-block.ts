@@ -69,6 +69,9 @@ export type CodeBlockType =
   | 'block'
   | 'statement'
   | 'expression'
+  | 'struct'
+  | 'trait'
+  | 'impl'
   | 'unknown';
 
 /**
@@ -89,6 +92,17 @@ export type SupportedLanguage =
   | 'swift'
   | 'kotlin'
   | 'scala'
+  | 'r'
+  | 'shell'
+  | 'sql'
+  | 'lua'
+  | 'perl'
+  | 'objectivec'
+  | 'elixir'
+  | 'erlang'
+  | 'haskell'
+  | 'clojure'
+  | 'fsharp'
   | 'unknown';
 
 /**
@@ -102,6 +116,8 @@ export interface CodeBlockOptions {
   endColumn?: number;
   content: string;
   language: SupportedLanguage;
+  /** @deprecated Use blockType instead */
+  type?: CodeBlockType;
   blockType?: CodeBlockType;
   name?: string;
   metadata?: Record<string, unknown>;
@@ -125,7 +141,7 @@ export function createCodeBlock(options: CodeBlockOptions): CodeBlock {
     content: options.content,
     normalizedContent,
     language: options.language,
-    blockType: options.blockType ?? 'unknown',
+    blockType: options.blockType ?? options.type ?? 'unknown',
     name: options.name,
     contentHash,
     tokenCount,

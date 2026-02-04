@@ -67,7 +67,7 @@ export const queryCommand = new Command('query')
 
       const config = await loadConfig(process.cwd());
       const engine = new NLCIEngine(config);
-      await engine.load(indexPath);
+      await engine.load();
 
       spinner.text = 'Querying...';
       const startTime = performance.now();
@@ -76,36 +76,36 @@ export const queryCommand = new Command('query')
       const threshold = parseFloat(options.threshold ?? '0.85');
       const limit = parseInt(options.limit ?? '10', 10);
 
-      const results = await engine.findSimilar(queryCode, options.file ?? 'query', {
-        threshold,
+      const result = await engine.query(queryCode, {
+        minSimilarity: threshold,
         maxResults: limit,
       });
 
       const duration = performance.now() - startTime;
 
       // Filter by clone type if specified
-      let filteredResults = results;
+      let filteredClones = [...result.clones];
       if (options.type) {
         const cloneType = `type-${options.type}` as CloneResult['cloneType'];
-        filteredResults = results.filter((r) => r.cloneType === cloneType);
+        filteredClones = filteredClones.filter((r) => r.cloneType === cloneType);
       }
 
       spinner.succeed(
-        `Found ${filteredResults.length} similar code blocks in ${formatDuration(duration)}`
+        `Found ${filteredClones.length} similar code blocks in ${formatDuration(duration)}`
       );
 
       // Display results
-      if (filteredResults.length === 0) {
+      if (filteredClones.length === 0) {
         console.log(chalk.yellow('\nNo similar code blocks found.'));
         return;
       }
 
       if (options.format === 'json') {
-        console.log(JSON.stringify(filteredResults, null, 2));
+        console.log(JSON.stringify(filteredClones, null, 2));
       } else if (options.format === 'compact') {
-        displayCompact(filteredResults);
+        displayCompact(filteredClones);
       } else {
-        displayTable(filteredResults, options.verbose ?? false);
+        displayTable(filteredClones, options.verbose ?? false);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

@@ -8,18 +8,8 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": [
-    "Programming Languages",
-    "Linters",
-    "Other"
-  ],
-  "keywords": [
-    "code clone",
-    "duplicate code",
-    "similarity",
-    "lsh",
-    "code analysis"
-  ],
+  "categories": ["Programming Languages", "Linters", "Other"],
+  "keywords": ["code clone", "duplicate code", "similarity", "lsh", "code analysis"],
   "activationEvents": [
     "workspaceContains:.nlci-index",
     "workspaceContains:nlci.config.js",
@@ -107,12 +97,7 @@
         },
         "nlci.diagnosticSeverity": {
           "type": "string",
-          "enum": [
-            "error",
-            "warning",
-            "information",
-            "hint"
-          ],
+          "enum": ["error", "warning", "information", "hint"],
           "default": "information",
           "description": "Severity level for clone diagnostics"
         },
@@ -121,10 +106,7 @@
           "items": {
             "type": "string"
           },
-          "default": [
-            "**/node_modules/**",
-            "**/dist/**"
-          ],
+          "default": ["**/node_modules/**", "**/dist/**"],
           "description": "Glob patterns to exclude from scanning"
         },
         "nlci.lsh.numTables": {

@@ -95,11 +95,7 @@ export function json(data: unknown): void {
 /**
  * Create a progress bar string.
  */
-export function progressBar(
-  current: number,
-  total: number,
-  width = 30,
-): string {
+export function progressBar(current: number, total: number, width = 30): string {
   const percentage = Math.min(1, current / total);
   const filled = Math.round(width * percentage);
   const empty = width - filled;
@@ -113,24 +109,17 @@ export function progressBar(
 /**
  * Format a table with borders.
  */
-export function simpleTable(
-  headers: string[],
-  rows: string[][],
-): string {
+export function simpleTable(headers: string[], rows: string[][]): string {
   const colWidths = headers.map((h, i) =>
-    Math.max(h.length, ...rows.map((r) => (r[i] ?? '').length)),
+    Math.max(h.length, ...rows.map((r) => (r[i] ?? '').length))
   );
 
-  const separator = chalk.dim(
-    '├' + colWidths.map((w) => '─'.repeat(w + 2)).join('┼') + '┤',
-  );
+  const separator = chalk.dim('├' + colWidths.map((w) => '─'.repeat(w + 2)).join('┼') + '┤');
 
   const formatRow = (row: string[]): string => {
     return (
       chalk.dim('│') +
-      row
-        .map((cell, i) => ` ${cell.padEnd(colWidths[i])} `)
-        .join(chalk.dim('│')) +
+      row.map((cell, i) => ` ${cell.padEnd(colWidths[i])} `).join(chalk.dim('│')) +
       chalk.dim('│')
     );
   };
@@ -138,12 +127,8 @@ export function simpleTable(
   const headerRow = formatRow(headers.map((h) => chalk.bold(h)));
   const dataRows = rows.map(formatRow);
 
-  const top = chalk.dim(
-    '┌' + colWidths.map((w) => '─'.repeat(w + 2)).join('┬') + '┐',
-  );
-  const bottom = chalk.dim(
-    '└' + colWidths.map((w) => '─'.repeat(w + 2)).join('┴') + '┘',
-  );
+  const top = chalk.dim('┌' + colWidths.map((w) => '─'.repeat(w + 2)).join('┬') + '┐');
+  const bottom = chalk.dim('└' + colWidths.map((w) => '─'.repeat(w + 2)).join('┴') + '┘');
 
   return [top, headerRow, separator, ...dataRows, bottom].join('\n');
 }

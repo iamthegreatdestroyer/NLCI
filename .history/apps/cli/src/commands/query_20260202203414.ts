@@ -33,11 +33,7 @@ export const queryCommand = new Command('query')
   .option('-x, --index <path>', 'Path to index file', '.nlci-index')
   .option('-f, --file <path>', 'Query using code from a file')
   .option('-c, --code <code>', 'Query using inline code snippet')
-  .option(
-    '-t, --threshold <value>',
-    'Minimum similarity threshold (0-1)',
-    '0.85',
-  )
+  .option('-t, --threshold <value>', 'Minimum similarity threshold (0-1)', '0.85')
   .option('-n, --limit <n>', 'Maximum number of results', '10')
   .option('--type <type>', 'Filter by clone type (1, 2, 3, 4)')
   .option('--format <format>', 'Output format (table, json, compact)', 'table')
@@ -48,9 +44,7 @@ export const queryCommand = new Command('query')
     try {
       // Validate input
       if (!options.file && !options.code) {
-        throw new Error(
-          'Either --file or --code must be provided',
-        );
+        throw new Error('Either --file or --code must be provided');
       }
 
       // Get query code
@@ -64,13 +58,11 @@ export const queryCommand = new Command('query')
 
       // Load index
       const indexPath = path.resolve(options.index ?? '.nlci-index');
-      
+
       try {
         await fs.access(indexPath);
       } catch {
-        throw new Error(
-          `Index not found at ${indexPath}. Run 'nlci scan' first.`,
-        );
+        throw new Error(`Index not found at ${indexPath}. Run 'nlci scan' first.`);
       }
 
       const config = await loadConfig(process.cwd());
@@ -99,7 +91,7 @@ export const queryCommand = new Command('query')
       }
 
       spinner.succeed(
-        `Found ${filteredResults.length} similar code blocks in ${formatDuration(duration)}`,
+        `Found ${filteredResults.length} similar code blocks in ${formatDuration(duration)}`
       );
 
       // Display results
@@ -138,12 +130,8 @@ function displayTable(results: CloneResult[], verbose: boolean): void {
     console.log(chalk.bold('\nDetails:'));
     for (const result of results) {
       console.log(`\n${chalk.cyan(result.target.filePath ?? 'unknown')}:`);
-      console.log(
-        `  Lines ${result.target.startLine}-${result.target.endLine}`,
-      );
-      console.log(
-        `  Similarity: ${formatSimilarity(result.similarity)} (${result.cloneType})`,
-      );
+      console.log(`  Lines ${result.target.startLine}-${result.target.endLine}`);
+      console.log(`  Similarity: ${formatSimilarity(result.similarity)} (${result.cloneType})`);
     }
   }
 }
@@ -152,9 +140,7 @@ function displayCompact(results: CloneResult[]): void {
   for (const result of results) {
     const similarity = (result.similarity * 100).toFixed(0);
     const type = result.cloneType.replace('type-', 'T');
-    console.log(
-      `${similarity}% ${type} ${result.target.filePath}:${result.target.startLine}`,
-    );
+    console.log(`${similarity}% ${type} ${result.target.filePath}:${result.target.startLine}`);
   }
 }
 

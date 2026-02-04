@@ -4,20 +4,55 @@
  * Core service that manages the NLCI engine and index
  */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
+import {
+  NLCIEngine,
+  type CloneCluster,
+  type CloneResult,
+  type LSHIndexStats,
+  type NLCIConfig,
+} from '@nlci/core';
 import * as fs from 'fs/promises';
-import { NlciEngine, type NlciConfig, type CodeBlock, type CloneResult } from '@nlci/core';
+import * as path from 'path';
+import * as vscode from 'vscode';
 import { Logger } from '../utils/logger';
 
 /**
- * Index statistics
+ * Re-export LSHIndexStats for convenience
  */
-export interface IndexStats {
-  totalBlocks: number;
-  totalFiles: number;
-  languages: Record<string, number>;
-  lastUpdated: Date;
+export type { LSHIndexStats };
+
+/**
+ * Convert CloneCluster[] to CloneResult[] for backward compatibility.
+ * Creates pairs from representative block (or first block) to all other blocks.
+ */
+function clustersToResults(clusters: CloneCluster[]): CloneResult[] {
+  const results: CloneResult[] = [];
+
+  for (const cluster of clusters) {
+    if (cluster.blocks.length < 2) continue;
+
+    // Use representative block or first block as source
+    const source = cluster.representative ?? cluster.blocks[0];
+
+    // Create pairs from source to all other blocks
+    for (const target of cluster.blocks) {
+      if (target === source) continue;
+
+      results.push({
+        source,
+        target,
+        similarity: cluster.avgSimilarity,
+        cloneType: cluster.cloneType,
+        metrics: {
+          sharedTokens: 0,
+          totalTokens: 0,
+          editDistance: 0,
+        },
+      });
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -25,9 +60,9 @@ export interface IndexStats {
  */
 export class NlciService implements vscode.Disposable {
   private readonly logger = new Logger('NlciService');
-  private engine: NlciEngine | undefined;
+  private engine: NLCIEngine | undefined;
   private indexPath: string | undefined;
-  private config: NlciConfig | undefined;
+  private config: Partial<NLCIConfig> | undefined;
   private _isInitialized = false;
   private _hasIndex = false;
 
@@ -87,18 +122,26 @@ export class NlciService implements vscode.Disposable {
   /**
    * Load configuration from VS Code settings
    */
-  private loadConfiguration(): NlciConfig {
+  private loadConfiguration(): Partial<NLCIConfig> {
     const config = vscode.workspace.getConfiguration('nlci');
 
     return {
       lsh: {
         numTables: config.get<number>('lsh.numTables', 20),
         numBits: config.get<number>('lsh.numBits', 12),
-        dimensions: 384,
+        dimension: 384,
+        multiProbe: { enabled: true, numProbes: 3 },
       },
-      threshold: config.get<number>('threshold', 0.85),
-      minBlockSize: 3,
-      maxBlockSize: 500,
+      parser: {
+        minBlockSize: 3,
+        maxBlockSize: 500,
+        languages: [],
+        extractFunctions: true,
+        extractClasses: true,
+        extractBlocks: false,
+        includePatterns: [],
+        excludePatterns: [],
+      },
     };
   }
 
@@ -121,11 +164,14 @@ export class NlciService implements vscode.Disposable {
       throw new Error('No workspace folder open');
     }
 
+    if (!this.config) {
+      throw new Error('Service not initialized');
+    }
+
     this.logger.info(`Scanning workspace: ${workspaceFolder.uri.fsPath}`);
 
-    // Create new engine
-    this.engine = new NlciEngine(this.config!);
-    await this.engine.initialize();
+    // Create new engine (no initialize() needed - constructor initializes)
+    this.engine = new NLCIEngine(this.config);
 
     progressCallback?.('Discovering files...', 0);
 
@@ -145,12 +191,12 @@ export class NlciService implements vscode.Disposable {
     this.logger.info(`Found ${files.length} files to process`);
     progressCallback?.(`Found ${files.length} files`, 10);
 
-    // Process each file
+    // Process each file using indexCode (not indexFile)
     let processed = 0;
     for (const file of files) {
       try {
         const content = await fs.readFile(file.fsPath, 'utf-8');
-        await this.engine.indexFile(file.fsPath, content);
+        await this.engine.indexCode(content, file.fsPath);
         processed++;
 
         const progress = 10 + (processed / files.length) * 80;
@@ -162,7 +208,7 @@ export class NlciService implements vscode.Disposable {
 
     progressCallback?.('Saving index...', 95);
 
-    // Save index
+    // Save index using save() - no path argument
     this.indexPath = path.join(workspaceFolder.uri.fsPath, '.nlci-index');
     await this.saveIndex();
 
@@ -182,18 +228,18 @@ export class NlciService implements vscode.Disposable {
     }
 
     const threshold = this.getThreshold();
-    const results = await this.engine.query(code, threshold);
+    const result = await this.engine.query(code, { minSimilarity: threshold });
 
     // Filter out results from the same file if requested
     if (filePath) {
-      return results.filter((r) => r.target.filePath !== filePath);
+      return result.clones.filter((r) => r.target.filePath !== filePath);
     }
 
-    return results;
+    return [...result.clones];
   }
 
   /**
-   * Get all clones in the workspace
+   * Get all clones in the workspace as result pairs
    */
   async getAllClones(): Promise<CloneResult[]> {
     if (!this.engine) {
@@ -201,23 +247,42 @@ export class NlciService implements vscode.Disposable {
     }
 
     const threshold = this.getThreshold();
-    return this.engine.findAllClones(threshold);
+    const clusters = await this.engine.findAllClones({ minSimilarity: threshold });
+    return clustersToResults(clusters);
   }
 
   /**
-   * Get clones for a specific file
+   * Get clones for a specific file as result pairs
    */
   async getClonesForFile(filePath: string): Promise<CloneResult[]> {
+    console.log('[Service] getClonesForFile called for:', filePath);
+
     if (!this.engine) {
+      console.log('[Service] No engine available');
       return [];
     }
 
     const threshold = this.getThreshold();
-    return this.engine.getClonesForFile(filePath, threshold);
+    console.log('[Service] Using threshold:', threshold);
+
+    const allClusters = await this.engine.findAllClones({ minSimilarity: threshold });
+    console.log('[Service] Total clusters found:', allClusters.length);
+
+    // Filter clusters that contain blocks from the specified file
+    const relevantClusters = allClusters.filter((cluster) =>
+      cluster.blocks.some((block) => block.filePath === filePath)
+    );
+    console.log('[Service] Relevant clusters for this file:', relevantClusters.length);
+
+    if (relevantClusters.length > 0) {
+      console.log('[Service] Sample cluster:', JSON.stringify(relevantClusters[0], null, 2));
+    }
+
+    return clustersToResults(relevantClusters);
   }
 
   /**
-   * Update a document in the index
+   * Update a document in the index (re-indexes the file)
    */
   async updateDocument(document: vscode.TextDocument): Promise<void> {
     if (!this.engine) {
@@ -225,13 +290,14 @@ export class NlciService implements vscode.Disposable {
     }
 
     const content = document.getText();
-    await this.engine.updateFile(document.uri.fsPath, content);
+    // Re-index the file (note: this adds blocks, doesn't remove old ones)
+    await this.engine.indexCode(content, document.uri.fsPath);
   }
 
   /**
    * Get index statistics
    */
-  getStats(): IndexStats | undefined {
+  getStats(): LSHIndexStats | undefined {
     if (!this.engine) {
       return undefined;
     }
@@ -262,25 +328,26 @@ export class NlciService implements vscode.Disposable {
    * Save index to disk
    */
   private async saveIndex(): Promise<void> {
-    if (!this.engine || !this.indexPath) {
+    if (!this.engine) {
       return;
     }
 
-    await this.engine.saveIndex(this.indexPath);
-    this.logger.info(`Index saved to ${this.indexPath}`);
+    // save() doesn't take a path - just saves to configured location
+    await this.engine.save();
+    this.logger.info('Index saved');
   }
 
   /**
    * Load index from disk
    */
   private async loadIndex(): Promise<void> {
-    if (!this.indexPath) {
-      return;
+    if (!this.config) {
+      throw new Error('Service not initialized');
     }
-
-    this.engine = new NlciEngine(this.config!);
-    await this.engine.loadIndex(this.indexPath);
-    this.logger.info(`Index loaded from ${this.indexPath}`);
+    this.engine = new NLCIEngine(this.config);
+    // load() doesn't take a path - just loads from configured location
+    await this.engine.load();
+    this.logger.info('Index loaded');
   }
 
   /**

@@ -25,13 +25,7 @@ export {
 } from './result.js';
 
 // Logger
-export {
-  Logger,
-  logger,
-  createLogger,
-  type LogLevel,
-  type LoggerConfig,
-} from './logger.js';
+export { Logger, logger, createLogger, type LogLevel, type LoggerConfig } from './logger.js';
 
 // Utilities
 export {

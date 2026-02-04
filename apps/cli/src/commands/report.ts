@@ -46,11 +46,11 @@ export const reportCommand = new Command('report')
       spinner.text = 'Loading index...';
       const config = await loadConfig(process.cwd());
       const engine = new NLCIEngine(config);
-      await engine.load(indexPath);
+      await engine.load();
 
       spinner.text = 'Analyzing clones...';
       const startTime = performance.now();
-      const summary = engine.generateSummary();
+      const summary = await engine.generateSummary();
       const duration = performance.now() - startTime;
 
       spinner.succeed(`Report generated in ${formatDuration(duration)}`);
@@ -94,46 +94,44 @@ function formatConsole(summary: ScanSummary): void {
   console.log(chalk.bold('═══════════════════════════════════════════\n'));
 
   console.log(chalk.bold('Overview:'));
-  console.log(`  Total code blocks:  ${summary.totalBlocks}`);
-  console.log(`  Clone clusters:     ${summary.cloneClusters}`);
-  console.log(`  Clone ratio:        ${(summary.cloneRatio * 100).toFixed(1)}%`);
+  console.log(`  Total code blocks:  ${summary.blocksIndexed}`);
+  console.log(`  Clone pairs:        ${summary.clonePairsFound}`);
+  console.log(
+    `  Clone ratio:        ${((summary.clonePairsFound / (summary.blocksIndexed || 1)) * 100).toFixed(1)}%`
+  );
 
   console.log('\n' + chalk.bold('Clone Types:'));
   const typeHeaders = ['Type', 'Description', 'Count', 'Percentage'];
+  const total = summary.blocksIndexed || 1;
   const typeRows = [
     [
       'Type-1',
       'Exact clones',
       String(summary.clonesByType['type-1'] ?? 0),
-      `${(((summary.clonesByType['type-1'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-1'] ?? 0) / total) * 100).toFixed(1)}%`,
     ],
     [
       'Type-2',
       'Parameterized clones',
       String(summary.clonesByType['type-2'] ?? 0),
-      `${(((summary.clonesByType['type-2'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-2'] ?? 0) / total) * 100).toFixed(1)}%`,
     ],
     [
       'Type-3',
       'Near-miss clones',
       String(summary.clonesByType['type-3'] ?? 0),
-      `${(((summary.clonesByType['type-3'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-3'] ?? 0) / total) * 100).toFixed(1)}%`,
     ],
     [
       'Type-4',
       'Semantic clones',
       String(summary.clonesByType['type-4'] ?? 0),
-      `${(((summary.clonesByType['type-4'] ?? 0) / summary.totalBlocks) * 100).toFixed(1)}%`,
+      `${(((summary.clonesByType['type-4'] ?? 0) / total) * 100).toFixed(1)}%`,
     ],
   ];
   console.log(table([typeHeaders, ...typeRows]));
 
-  if (summary.hotspots && summary.hotspots.length > 0) {
-    console.log(chalk.bold('Hotspots (files with most clones):'));
-    const hotspotHeaders = ['File', 'Clone Count'];
-    const hotspotRows = summary.hotspots.slice(0, 10).map((h) => [h.file, String(h.count)]);
-    console.log(table([hotspotHeaders, ...hotspotRows]));
-  }
+  // Note: Hotspot analysis requires CloneCluster data, which is not yet implemented
 }
 
 function formatJson(summary: ScanSummary): string {
@@ -166,15 +164,15 @@ function formatHtml(summary: ScanSummary): string {
   <div class="summary">
     <div class="card">
       <h3>Total Blocks</h3>
-      <div class="value">${summary.totalBlocks}</div>
+      <div class="value">${summary.blocksIndexed}</div>
     </div>
     <div class="card">
-      <h3>Clone Clusters</h3>
-      <div class="value">${summary.cloneClusters}</div>
+      <h3>Clone Pairs</h3>
+      <div class="value">${summary.clonePairsFound}</div>
     </div>
     <div class="card">
       <h3>Clone Ratio</h3>
-      <div class="value">${(summary.cloneRatio * 100).toFixed(1)}%</div>
+      <div class="value">${((summary.clonePairsFound / (summary.blocksIndexed || 1)) * 100).toFixed(1)}%</div>
     </div>
   </div>
 
@@ -205,9 +203,9 @@ function formatMarkdown(summary: ScanSummary): string {
 
 | Metric | Value |
 |--------|-------|
-| Total Blocks | ${summary.totalBlocks} |
-| Clone Clusters | ${summary.cloneClusters} |
-| Clone Ratio | ${(summary.cloneRatio * 100).toFixed(1)}% |
+| Total Blocks | ${summary.blocksIndexed} |
+| Clone Pairs | ${summary.clonePairsFound} |
+| Clone Ratio | ${((summary.clonePairsFound / (summary.blocksIndexed || 1)) * 100).toFixed(1)}% |
 
 ## Clone Types
 

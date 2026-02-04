@@ -10,11 +10,11 @@ import type { CodeBlock, SupportedLanguage } from './code-block.js';
  * A detected code clone/similarity result.
  */
 export interface CloneResult {
-  /** The query code block */
-  readonly query: CodeBlock;
+  /** The source code block */
+  readonly source: CodeBlock;
 
-  /** The matched code block */
-  readonly match: CodeBlock;
+  /** The target/matched code block */
+  readonly target: CodeBlock;
 
   /** Similarity score between 0 and 1 */
   readonly similarity: number;
@@ -22,14 +22,15 @@ export interface CloneResult {
   /** Type of clone detected */
   readonly cloneType: CloneType;
 
-  /** Confidence score for the detection */
-  readonly confidence: number;
-
-  /** Number of LSH tables that produced this match */
-  readonly tableMatches: number;
-
-  /** Time taken to find this match (milliseconds) */
-  readonly queryTimeMs: number;
+  /** Comparison metrics */
+  readonly metrics: {
+    /** Number of shared tokens */
+    readonly sharedTokens: number;
+    /** Total tokens compared */
+    readonly totalTokens: number;
+    /** Edit distance between blocks */
+    readonly editDistance: number;
+  };
 }
 
 /**
@@ -45,26 +46,17 @@ export type CloneType =
  * Result of a clone detection query.
  */
 export interface QueryResult {
-  /** The query that was executed */
-  readonly queryBlock: CodeBlock;
+  /** The original query code */
+  readonly query: string;
 
   /** All clone results sorted by similarity (descending) */
-  readonly results: readonly CloneResult[];
+  readonly clones: readonly CloneResult[];
 
   /** Total number of matches found */
   readonly totalMatches: number;
 
   /** Total query time in milliseconds */
-  readonly totalQueryTimeMs: number;
-
-  /** Number of LSH tables consulted */
-  readonly tablesQueried: number;
-
-  /** Number of candidate blocks retrieved before filtering */
-  readonly candidatesRetrieved: number;
-
-  /** Whether results were truncated due to limit */
-  readonly truncated: boolean;
+  readonly duration: number;
 }
 
 /**
@@ -106,17 +98,17 @@ export interface CloneCluster {
   /** All code blocks in this cluster */
   readonly blocks: readonly CodeBlock[];
 
-  /** Representative block for the cluster */
-  readonly representative: CodeBlock;
+  /** Clone type of this cluster */
+  readonly cloneType: CloneType;
 
   /** Average similarity within the cluster */
   readonly avgSimilarity: number;
 
-  /** Clone type of this cluster */
-  readonly cloneType: CloneType;
+  /** Representative block for the cluster (optional) */
+  readonly representative?: CodeBlock;
 
-  /** Total lines of duplicated code */
-  readonly duplicatedLines: number;
+  /** Total lines of duplicated code (optional) */
+  readonly duplicatedLines?: number;
 }
 
 /**

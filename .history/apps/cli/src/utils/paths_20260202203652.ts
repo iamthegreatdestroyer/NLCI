@@ -41,10 +41,7 @@ export function getExtension(filePath: string): string {
 /**
  * Check if a path matches any of the given glob patterns.
  */
-export function matchesPatterns(
-  filePath: string,
-  patterns: string[],
-): boolean {
+export function matchesPatterns(filePath: string, patterns: string[]): boolean {
   const normalized = normalizePath(filePath);
 
   for (const pattern of patterns) {

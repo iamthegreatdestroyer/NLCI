@@ -1,2 +1,2 @@
 export { NlciService } from './nlci-service';
-export type { IndexStats } from './nlci-service';
+export type { LSHIndexStats } from './nlci-service';

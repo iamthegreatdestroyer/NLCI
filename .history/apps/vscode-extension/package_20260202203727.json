@@ -8,18 +8,8 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": [
-    "Programming Languages",
-    "Linters",
-    "Other"
-  ],
-  "keywords": [
-    "code clone",
-    "duplicate code",
-    "similarity",
-    "lsh",
-    "code analysis"
-  ],
+  "categories": ["Programming Languages", "Linters", "Other"],
+  "keywords": ["code clone", "duplicate code", "similarity", "lsh", "code analysis"],
   "activationEvents": [
     "workspaceContains:.nlci-index",
     "workspaceContains:nlci.config.js",

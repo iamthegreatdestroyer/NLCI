@@ -94,10 +94,7 @@ export class SeededRandom {
  * @param rng - Random number generator
  * @returns A random hyperplane
  */
-export function createHyperplane(
-  dimension: number,
-  rng: SeededRandom,
-): Hyperplane {
+export function createHyperplane(dimension: number, rng: SeededRandom): Hyperplane {
   const normal = new Float32Array(dimension);
 
   // Sample from standard Gaussian distribution
@@ -127,7 +124,7 @@ export function createHyperplane(
 export function createHashFunction(
   numBits: number,
   dimension: number,
-  seed: number,
+  seed: number
 ): HyperplaneHashFunction {
   const rng = new SeededRandom(seed);
   const hyperplanes: Hyperplane[] = [];
@@ -158,11 +155,11 @@ export function createHashFunction(
  */
 export function computeHash(
   embedding: Float32Array | number[],
-  hashFunction: HyperplaneHashFunction,
+  hashFunction: HyperplaneHashFunction
 ): bigint {
   if (embedding.length !== hashFunction.dimension) {
     throw new Error(
-      `Embedding dimension ${embedding.length} does not match hash function dimension ${hashFunction.dimension}`,
+      `Embedding dimension ${embedding.length} does not match hash function dimension ${hashFunction.dimension}`
     );
   }
 
@@ -185,10 +182,7 @@ export function computeHash(
  * Computes the dot product of two vectors.
  * Uses loop unrolling for better performance.
  */
-function computeDotProduct(
-  a: Float32Array | number[],
-  b: Float32Array,
-): number {
+function computeDotProduct(a: Float32Array | number[], b: Float32Array): number {
   const n = a.length;
   let sum = 0;
 
@@ -214,11 +208,7 @@ function computeDotProduct(
  * @param numBits - Number of bits in the hash
  * @returns Number of differing bits
  */
-export function hammingDistance(
-  hash1: bigint,
-  hash2: bigint,
-  numBits: number,
-): number {
+export function hammingDistance(hash1: bigint, hash2: bigint, numBits: number): number {
   let xor = hash1 ^ hash2;
   let distance = 0;
 
@@ -241,10 +231,7 @@ export function hammingDistance(
  * @param numBits - Number of bits in the hash
  * @returns Estimated cosine similarity in [-1, 1]
  */
-export function estimateCosineSimilarity(
-  hammingDist: number,
-  numBits: number,
-): number {
+export function estimateCosineSimilarity(hammingDist: number, numBits: number): number {
   // Probability that a bit is the same
   const pSame = 1 - hammingDist / numBits;
 
@@ -265,11 +252,7 @@ export function estimateCosineSimilarity(
  * @param numProbes - Number of probes (flips up to this many bits)
  * @returns Array of probe hashes including original
  */
-export function generateProbes(
-  hash: bigint,
-  numBits: number,
-  numProbes: number,
-): bigint[] {
+export function generateProbes(hash: bigint, numBits: number, numProbes: number): bigint[] {
   const probes: bigint[] = [hash];
 
   if (numProbes <= 0) return probes;

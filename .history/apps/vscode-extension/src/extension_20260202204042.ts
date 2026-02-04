@@ -21,9 +21,7 @@ let disposables: vscode.Disposable[] = [];
 /**
  * Activates the NLCI extension
  */
-export async function activate(
-  context: vscode.ExtensionContext
-): Promise<void> {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const logger = new Logger('NLCI');
   logger.info('Activating NLCI extension...');
 
@@ -70,15 +68,13 @@ export async function activate(
     });
 
     // Subscribe to document changes
-    const docChangeDisposable = vscode.workspace.onDidSaveTextDocument(
-      async (doc) => {
-        if (nlciService?.isEnabled()) {
-          await nlciService.updateDocument(doc);
-          diagnosticsProvider.updateDiagnostics(doc);
-          treeProvider.refresh();
-        }
+    const docChangeDisposable = vscode.workspace.onDidSaveTextDocument(async (doc) => {
+      if (nlciService?.isEnabled()) {
+        await nlciService.updateDocument(doc);
+        diagnosticsProvider.updateDiagnostics(doc);
+        treeProvider.refresh();
       }
-    );
+    });
 
     // Add all disposables
     disposables.push(
@@ -94,11 +90,7 @@ export async function activate(
     context.subscriptions.push(...disposables);
 
     // Set context for conditional UI
-    await vscode.commands.executeCommand(
-      'setContext',
-      'nlci.hasIndex',
-      nlciService.hasIndex()
-    );
+    await vscode.commands.executeCommand('setContext', 'nlci.hasIndex', nlciService.hasIndex());
 
     // Auto-scan if enabled
     const config = vscode.workspace.getConfiguration('nlci');
@@ -109,9 +101,7 @@ export async function activate(
     logger.info('NLCI extension activated successfully');
   } catch (error) {
     logger.error('Failed to activate NLCI extension', error);
-    vscode.window.showErrorMessage(
-      `NLCI: Failed to activate extension: ${error}`
-    );
+    vscode.window.showErrorMessage(`NLCI: Failed to activate extension: ${error}`);
   }
 }
 

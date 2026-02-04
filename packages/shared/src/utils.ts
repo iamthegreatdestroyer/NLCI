@@ -42,7 +42,7 @@ export function deepClone<T>(obj: T): T {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => deepClone(item)) as T;
+    return obj.map((item: unknown) => deepClone(item)) as T;
   }
 
   if (obj instanceof Date) {
@@ -54,7 +54,7 @@ export function deepClone<T>(obj: T): T {
   }
 
   if (obj instanceof Set) {
-    return new Set(Array.from(obj).map((item) => deepClone(item))) as T;
+    return new Set(Array.from(obj).map((item: unknown) => deepClone(item))) as T;
   }
 
   const cloned: Record<string, unknown> = {};

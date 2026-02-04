@@ -21,9 +21,7 @@
     "code analysis"
   ],
   "activationEvents": [
-    "workspaceContains:.nlci-index",
-    "workspaceContains:nlci.config.js",
-    "workspaceContains:nlci.config.json"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {

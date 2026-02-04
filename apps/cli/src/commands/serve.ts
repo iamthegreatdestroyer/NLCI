@@ -21,6 +21,13 @@ interface ServeOptions {
   host?: string;
 }
 
+interface QueryRequest {
+  code?: string;
+  file?: string;
+  threshold?: number;
+  maxResults?: number;
+}
+
 export const serveCommand = new Command('serve')
   .description('Start a local API server for code similarity queries')
   .option('-x, --index <path>', 'Path to index file', '.nlci-index')
@@ -42,74 +49,76 @@ export const serveCommand = new Command('serve')
       spinner.text = 'Loading index...';
       const config = await loadConfig(process.cwd());
       const engine = new NLCIEngine(config);
-      await engine.load(indexPath);
+      await engine.load();
 
       const stats = engine.getStats();
-      spinner.info(`Loaded index with ${stats.totalBlockCount} blocks`);
+      spinner.info(`Loaded index with ${stats.totalBlocks} blocks`);
 
       // Create server
       const port = parseInt(options.port ?? '3000', 10);
       const host = options.host ?? 'localhost';
 
-      const server = http.createServer(async (req, res) => {
-        // CORS headers
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      const server = http.createServer((req, res) => {
+        void (async () => {
+          // CORS headers
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+          res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-        if (req.method === 'OPTIONS') {
-          res.writeHead(204);
-          res.end();
-          return;
-        }
-
-        try {
-          if (req.method === 'GET' && req.url === '/health') {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'ok' }));
+          if (req.method === 'OPTIONS') {
+            res.writeHead(204);
+            res.end();
             return;
           }
 
-          if (req.method === 'GET' && req.url === '/stats') {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(engine.getStats()));
-            return;
-          }
-
-          if (req.method === 'POST' && req.url === '/query') {
-            const body = await readBody(req);
-            const { code, file, threshold, maxResults } = JSON.parse(body);
-
-            if (!code) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Missing code field' }));
+          try {
+            if (req.method === 'GET' && req.url === '/health') {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ status: 'ok' }));
               return;
             }
 
-            const results = await engine.findSimilar(code, file ?? 'query', {
-              threshold: threshold ?? 0.85,
-              maxResults: maxResults ?? 10,
-            });
+            if (req.method === 'GET' && req.url === '/stats') {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(engine.getStats()));
+              return;
+            }
 
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ results }));
-            return;
+            if (req.method === 'POST' && req.url === '/query') {
+              const body = await readBody(req);
+              const { code, threshold, maxResults } = JSON.parse(body) as QueryRequest;
+
+              if (!code) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Missing code field' }));
+                return;
+              }
+
+              const results = await engine.query(code, {
+                minSimilarity: threshold ?? 0.85,
+                maxResults: maxResults ?? 10,
+              });
+
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ results }));
+              return;
+            }
+
+            if (req.method === 'POST' && req.url === '/clones') {
+              const summary = await engine.generateSummary();
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(summary));
+              return;
+            }
+
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Not found' }));
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: message }));
           }
-
-          if (req.method === 'POST' && req.url === '/clones') {
-            const summary = engine.generateSummary();
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(summary));
-            return;
-          }
-
-          res.writeHead(404, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Not found' }));
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: message }));
-        }
+        })();
       });
 
       server.listen(port, host, () => {
@@ -151,7 +160,7 @@ export const serveCommand = new Command('serve')
 function readBody(req: http.IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
-    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('data', (chunk: Buffer) => chunks.push(chunk));
     req.on('end', () => resolve(Buffer.concat(chunks).toString()));
     req.on('error', reject);
   });

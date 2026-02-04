@@ -19,23 +19,13 @@ module.exports = {
     node: true,
     es2022: true,
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'coverage/',
-    '.turbo/',
-    '*.config.js',
-    '*.config.mjs',
-  ],
+  ignorePatterns: ['node_modules/', 'dist/', 'coverage/', '.turbo/', '*.config.js', '*.config.mjs'],
   rules: {
     '@typescript-eslint/no-unused-vars': [
       'error',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
-    '@typescript-eslint/consistent-type-imports': [
-      'error',
-      { prefer: 'type-imports' },
-    ],
+    '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/require-await': 'warn',
     'no-console': ['warn', { allow: ['warn', 'error'] }],

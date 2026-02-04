@@ -71,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const docChangeDisposable = vscode.workspace.onDidSaveTextDocument(async (doc) => {
       if (nlciService?.isEnabled()) {
         await nlciService.updateDocument(doc);
-        diagnosticsProvider.updateDiagnostics(doc);
+        void diagnosticsProvider.updateDiagnostics(doc);
         treeProvider.refresh();
       }
     });
@@ -101,7 +101,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     logger.info('NLCI extension activated successfully');
   } catch (error) {
     logger.error('Failed to activate NLCI extension', error);
-    vscode.window.showErrorMessage(`NLCI: Failed to activate extension: ${error}`);
+    void vscode.window.showErrorMessage(`NLCI: Failed to activate extension: ${String(error)}`);
   }
 }
 

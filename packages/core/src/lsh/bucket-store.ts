@@ -5,7 +5,17 @@
  */
 
 import type { CodeBlock } from '../types/code-block.js';
-import { HashTable, type HashTableStats } from './hash-table.js';
+import { HashTable, type HashTableStats, type SerializedHashTable } from './hash-table.js';
+
+/**
+ * Serialized bucket store data structure.
+ */
+interface SerializedBucketStoreData {
+  version: number;
+  numTables: number;
+  maxBucketSize: number;
+  tables: Array<{ index: number; data: SerializedHashTable }>;
+}
 
 /**
  * Storage backend interface.
@@ -33,24 +43,26 @@ export interface BucketStorage {
 export class MemoryStorage implements BucketStorage {
   private data: Map<string, string> = new Map();
 
-  async save(key: string, data: string): Promise<void> {
+  save(key: string, data: string): Promise<void> {
     this.data.set(key, data);
+    return Promise.resolve();
   }
 
-  async load(key: string): Promise<string | null> {
-    return this.data.get(key) ?? null;
+  load(key: string): Promise<string | null> {
+    return Promise.resolve(this.data.get(key) ?? null);
   }
 
-  async delete(key: string): Promise<void> {
+  delete(key: string): Promise<void> {
     this.data.delete(key);
+    return Promise.resolve();
   }
 
-  async list(): Promise<string[]> {
-    return Array.from(this.data.keys());
+  list(): Promise<string[]> {
+    return Promise.resolve(Array.from(this.data.keys()));
   }
 
-  async exists(key: string): Promise<boolean> {
-    return this.data.has(key);
+  exists(key: string): Promise<boolean> {
+    return Promise.resolve(this.data.has(key));
   }
 }
 
@@ -253,7 +265,7 @@ export class BucketStore {
     if (!json) return false;
 
     try {
-      const data = JSON.parse(json);
+      const data = JSON.parse(json) as SerializedBucketStoreData;
 
       this.tables.clear();
       this.blockIndex.clear();
@@ -291,6 +303,66 @@ export class BucketStore {
     }
     this.blockIndex.clear();
     this.isDirty = true;
+  }
+
+  /**
+   * Exports the bucket store state for in-memory serialization.
+   */
+  exportState(): {
+    tables: Array<{ tableIndex: number; buckets: Array<{ hash: string; blocks: CodeBlock[] }> }>;
+  } {
+    const tables: Array<{
+      tableIndex: number;
+      buckets: Array<{ hash: string; blocks: CodeBlock[] }>;
+    }> = [];
+
+    for (const [tableIndex, table] of this.tables) {
+      const tableData = table.exportState();
+      tables.push({
+        tableIndex,
+        buckets: tableData.buckets.map((b) => ({
+          hash: b.hash.toString(),
+          blocks: b.blocks,
+        })),
+      });
+    }
+
+    return { tables };
+  }
+
+  /**
+   * Imports bucket store state from exported data.
+   */
+  importState(state: {
+    tables: Array<{ tableIndex: number; buckets: Array<{ hash: string; blocks: CodeBlock[] }> }>;
+  }): void {
+    this.clear();
+
+    for (const tableData of state.tables) {
+      const table = this.tables.get(tableData.tableIndex);
+      if (table) {
+        table.importState({
+          buckets: tableData.buckets.map((b) => ({
+            hash: BigInt(b.hash),
+            blocks: b.blocks,
+          })),
+        });
+
+        // Rebuild block index
+        for (const bucket of tableData.buckets) {
+          for (const block of bucket.blocks) {
+            let tableSet = this.blockIndex.get(block.id);
+            if (!tableSet) {
+              tableSet = new Set();
+              this.blockIndex.set(block.id, tableSet);
+            }
+            tableSet.add(tableData.tableIndex);
+          }
+        }
+      }
+    }
+
+    this.isDirty = false;
   }
 
   /**
