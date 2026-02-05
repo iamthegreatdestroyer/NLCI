@@ -170,9 +170,16 @@ export class NLCIEngine {
     // Index each block
     const indexedBlocks: CodeBlock[] = [];
 
+    // Runtime: mergeConfig() ensures parser is always present, but use type guard
+    // for TypeScript's strict null checking during DTS generation
+    const parser = this.config.parser;
+    if (!parser) {
+      throw new Error('Parser config missing - this should never happen as mergeConfig ensures complete config');
+    }
+
     for (const block of parseResult.blocks) {
       // Skip small blocks
-      if ((block.tokenCount ?? 0) < this.config.parser!.minBlockSize) {
+      if ((block.tokenCount ?? 0) < parser.minBlockSize) {
         continue;
       }
 
