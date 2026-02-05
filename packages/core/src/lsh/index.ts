@@ -6,24 +6,31 @@
 
 // Main LSH index
 export {
+  DEFAULT_LSH_INDEX_CONFIG,
   LSHIndex,
   type LSHIndexConfig,
-  type LSHQueryResult,
   type LSHIndexStats,
-  DEFAULT_LSH_INDEX_CONFIG,
+  type LSHQueryResult,
 } from './lsh-index.js';
 
 // Hyperplane hash functions
 export {
-  type Hyperplane,
-  type HyperplaneHashFunction,
   SeededRandom,
-  createHyperplane,
-  createHashFunction,
+  computeDotProductOptimized,
   computeHash,
-  hammingDistance,
+  computeHashBatch,
+  computeProjectionQuality,
+  createHashFunction,
+  createHyperplane,
+  createOrthogonalHashFunction,
   estimateCosineSimilarity,
   generateProbes,
+  generateScoredProbes,
+  hammingDistance,
+  type Hyperplane,
+  type HyperplaneHashFunction,
+  type ProjectionQuality,
+  type ScoredProbe,
 } from './hyperplane.js';
 
 // Hash table implementation
@@ -37,7 +44,7 @@ export {
 // Bucket store
 export {
   BucketStore,
+  MemoryStorage,
   type BucketStorage,
   type BucketStoreStats,
-  MemoryStorage,
 } from './bucket-store.js';

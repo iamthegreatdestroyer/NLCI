@@ -125,12 +125,12 @@ describe('Phase 1: Hyperplane Projections', () => {
 
     bench('computeHash (single) - 1,000 embeddings', () => {
       for (const embedding of embeddings) {
-        computeHash(hashFn, embedding);
+        computeHash(embedding, hashFn);
       }
     });
 
     bench('computeHashBatch - 1,000 embeddings batched', () => {
-      computeHashBatch(hashFn, embeddings);
+      computeHashBatch(embeddings, hashFn);
     });
   });
 
@@ -158,6 +158,8 @@ describe('Phase 2: LSH Index Optimizations', () => {
 
   describe('Multi-Probe Generation', () => {
     const sampleHash = BigInt('0xABCDEF123456');
+    const sampleEmbedding = generateRandomEmbedding(dim);
+    const hashFn = createHashFunction(numBits, dim, 42);
 
     bench('generateProbes - 5 probes', () => {
       for (let i = 0; i < 1000; i++) {
@@ -173,13 +175,13 @@ describe('Phase 2: LSH Index Optimizations', () => {
 
     bench('generateScoredProbes - 5 probes with scores', () => {
       for (let i = 0; i < 1000; i++) {
-        generateScoredProbes(sampleHash, numBits, 5);
+        generateScoredProbes(sampleHash, sampleEmbedding, hashFn, 5);
       }
     });
 
     bench('generateScoredProbes - 10 probes with scores', () => {
       for (let i = 0; i < 1000; i++) {
-        generateScoredProbes(sampleHash, numBits, 10);
+        generateScoredProbes(sampleHash, sampleEmbedding, hashFn, 10);
       }
     });
   });
