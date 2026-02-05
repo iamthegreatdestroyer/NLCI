@@ -375,11 +375,11 @@ export function mergeConfig(userConfig?: DeepPartial<NLCIConfig>): NLCIConfig {
   if (!userConfig) return DEFAULT_CONFIG;
 
   return {
-    lsh: { ...DEFAULT_CONFIG.lsh, ...userConfig.lsh },
-    embedding: { ...DEFAULT_CONFIG.embedding, ...userConfig.embedding },
-    parser: { ...DEFAULT_CONFIG.parser, ...userConfig.parser },
-    storage: { ...DEFAULT_CONFIG.storage, ...userConfig.storage },
-    performance: { ...DEFAULT_CONFIG.performance, ...userConfig.performance },
-    logging: { ...DEFAULT_CONFIG.logging, ...userConfig.logging },
+    lsh: { ...DEFAULT_CONFIG.lsh, ...(userConfig.lsh ?? {}) } as LSHConfig,
+    embedding: { ...DEFAULT_CONFIG.embedding, ...(userConfig.embedding ?? {}) } as EmbeddingConfig,
+    parser: { ...DEFAULT_CONFIG.parser, ...(userConfig.parser ?? {}) } as ParserConfig,
+    storage: { ...DEFAULT_CONFIG.storage, ...(userConfig.storage ?? {}) } as StorageConfig,
+    performance: { ...DEFAULT_CONFIG.performance, ...(userConfig.performance ?? {}) } as PerformanceConfig,
+    logging: { ...DEFAULT_CONFIG.logging, ...(userConfig.logging ?? {}) } as LoggingConfig,
   };
 }
