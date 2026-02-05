@@ -348,7 +348,7 @@ export class LSHIndex {
             hash,
             embeddingArray,
             this.hashFunctions[i],
-            this.config.multiProbe.numProbes
+            this.config.multiProbe!.numProbes!
           );
           hashesPerTable.set(
             i,
@@ -358,7 +358,7 @@ export class LSHIndex {
           const probes = generateProbes(
             hash,
             this.config.numBits,
-            this.config.multiProbe.numProbes
+            this.config.multiProbe.numProbes!
           );
           hashesPerTable.set(i, probes);
         }
