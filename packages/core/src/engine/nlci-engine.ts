@@ -15,7 +15,7 @@ import type {
   ScanSummary,
 } from '../types/clone-result.js';
 import type { CodeBlock, SupportedLanguage } from '../types/code-block.js';
-import type { NLCIConfig } from '../types/config.js';
+import type { NLCIConfig, DeepPartial } from '../types/config.js';
 import { mergeConfig } from '../types/config.js';
 import {
   MockEmbeddingModel,
@@ -91,11 +91,11 @@ export class NLCIEngine {
   /**
    * Creates a new NLCI engine.
    *
-   * @param config - Configuration options
+   * @param config - Configuration options (all properties optional with defaults)
    * @param dependencies - Optional dependency injection
    */
   constructor(
-    config: Partial<NLCIConfig> = {},
+    config: DeepPartial<NLCIConfig> = {},
     dependencies?: {
       parser?: CodeParser;
       embeddingModel?: EmbeddingModel;

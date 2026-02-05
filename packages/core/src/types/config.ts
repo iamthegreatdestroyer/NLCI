@@ -7,6 +7,18 @@
 import type { SupportedLanguage } from './code-block.js';
 
 /**
+ * Deep partial type utility.
+ * Makes all properties optional recursively, enabling ergonomic partial configs.
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? T[P] extends Array<infer U>
+      ? Array<DeepPartial<U>>
+      : DeepPartial<T[P]>
+    : T[P];
+};
+
+/**
  * Main NLCI configuration.
  */
 export interface NLCIConfig {
@@ -359,7 +371,7 @@ export const DEFAULT_CONFIG: NLCIConfig = {
 /**
  * Deep merges user config with defaults.
  */
-export function mergeConfig(userConfig?: Partial<NLCIConfig>): NLCIConfig {
+export function mergeConfig(userConfig?: DeepPartial<NLCIConfig>): NLCIConfig {
   if (!userConfig) return DEFAULT_CONFIG;
 
   return {
