@@ -54,7 +54,7 @@ export interface LSHConfig {
    * Recommended: 10-50 for balanced performance.
    * @default 20
    */
-  numTables: number;
+  numTables?: number;
 
   /**
    * Number of hash bits per table (K).
@@ -62,14 +62,14 @@ export interface LSHConfig {
    * Recommended: 8-16 for code similarity.
    * @default 12
    */
-  numBits: number;
+  numBits?: number;
 
   /**
    * Embedding dimension for hash functions.
    * Must match the embedding model output dimension.
    * @default 384
    */
-  dimension: number;
+  dimension?: number;
 
   /**
    * Random seed for reproducible hash functions.
@@ -90,7 +90,7 @@ export interface LSHConfig {
    * Probes nearby buckets at query time.
    * @default { enabled: true, numProbes: 3 }
    */
-  multiProbe: MultiProbeConfig;
+  multiProbe?: MultiProbeConfig;
 }
 
 /**
@@ -98,9 +98,9 @@ export interface LSHConfig {
  */
 export interface MultiProbeConfig {
   /** Whether multi-probe is enabled */
-  enabled: boolean;
+  enabled?: boolean;
   /** Number of probes for multi-probe LSH */
-  numProbes: number;
+  numProbes?: number;
 }
 
 /**
@@ -122,48 +122,48 @@ export interface EmbeddingConfig {
    * - 'mock': Mock embeddings for testing
    * @default 'tfidf'
    */
-  modelType: EmbeddingModelType;
+  modelType?: EmbeddingModelType;
 
   /**
    * Path to the ONNX model file.
    * Only used when modelType is 'onnx'.
    * @default './models/code-embedder-small/model.onnx'
    */
-  modelPath: string;
+  modelPath?: string;
 
   /**
    * Output embedding dimension.
    * Must match LSH dimension.
    * @default 384
    */
-  dimension: number;
+  dimension?: number;
 
   /**
    * Maximum sequence length for the model.
    * Longer sequences are truncated.
    * @default 512
    */
-  maxSequenceLength: number;
+  maxSequenceLength?: number;
 
   /**
    * Batch size for embedding generation.
    * Larger batches are more efficient but use more memory.
    * @default 32
    */
-  batchSize: number;
+  batchSize?: number;
 
   /**
    * Whether to use GPU acceleration if available.
    * @default true
    */
-  useGPU: boolean;
+  useGPU?: boolean;
 
   /**
    * Whether to normalize embeddings to unit length.
    * Required for cosine similarity.
    * @default true
    */
-  normalize: boolean;
+  normalize?: boolean;
 }
 
 /**
@@ -174,50 +174,50 @@ export interface ParserConfig {
    * Enabled languages for parsing.
    * Empty array means all supported languages.
    */
-  languages: SupportedLanguage[];
+  languages?: SupportedLanguage[];
 
   /**
    * Minimum code block size (tokens) to index.
    * Smaller blocks are ignored.
    * @default 10
    */
-  minBlockSize: number;
+  minBlockSize?: number;
 
   /**
    * Maximum code block size (tokens) to index.
    * Larger blocks are split or ignored.
    * @default 500
    */
-  maxBlockSize: number;
+  maxBlockSize?: number;
 
   /**
    * Whether to extract functions/methods.
    * @default true
    */
-  extractFunctions: boolean;
+  extractFunctions?: boolean;
 
   /**
    * Whether to extract classes.
    * @default true
    */
-  extractClasses: boolean;
+  extractClasses?: boolean;
 
   /**
    * Whether to extract arbitrary code blocks.
    * @default false
    */
-  extractBlocks: boolean;
+  extractBlocks?: boolean;
 
   /**
    * File patterns to include (glob).
    * Empty array means include all matching files.
    */
-  includePatterns: string[];
+  includePatterns?: string[];
 
   /**
    * File patterns to exclude (glob).
    */
-  excludePatterns: string[];
+  excludePatterns?: string[];
 }
 
 /**
