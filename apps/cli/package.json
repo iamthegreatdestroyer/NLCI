@@ -37,7 +37,7 @@
     "directory": "apps/cli"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0 <19.0.0"
   },
   "dependencies": {
     "@nlci/core": "workspace:*",
