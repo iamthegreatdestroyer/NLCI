@@ -385,7 +385,7 @@ export class MockEmbeddingModel implements EmbeddingModel {
       }
     }
 
-    return embedding;
+    return Promise.resolve(embedding);
   }
 
   async embedBatch(codes: string[]): Promise<Float32Array[]> {

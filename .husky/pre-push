@@ -1,0 +1,44 @@
+#!/bin/bash
+# Pre-push hook for NLCI
+# Ensures full test suite passes before pushing
+
+set -e
+
+echo "🚀 Running pre-push checks..."
+
+# Get list of commits to be pushed
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REMOTE="${1:-origin}"
+
+echo "📤 Pushing to: $REMOTE/$CURRENT_BRANCH"
+
+# Skip hook for certain branches
+if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "develop" ]]; then
+  echo "🔒 Running full test suite before pushing to $CURRENT_BRANCH"
+
+  # Run full test suite
+  echo "🧪 Running all tests..."
+  if ! pnpm test; then
+    echo "❌ Tests failed. Fix issues and try again."
+    exit 1
+  fi
+
+  # Run coverage check
+  echo "📊 Checking coverage..."
+  if ! pnpm test:coverage; then
+    echo "⚠️  Coverage check failed, but allowing push"
+  fi
+
+  # Build check
+  echo "🏗️  Building..."
+  if ! pnpm build; then
+    echo "❌ Build failed. Fix issues and try again."
+    exit 1
+  fi
+else
+  echo "⚡ Running quick checks on feature branch"
+  pnpm lint && pnpm typecheck
+fi
+
+echo "✅ All pre-push checks passed!"
+exit 0

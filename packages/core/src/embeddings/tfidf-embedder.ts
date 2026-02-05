@@ -156,7 +156,7 @@ export class TFIDFEmbedder implements EmbeddingModel {
     // Normalize to unit vector
     this.normalize(denseVector);
 
-    return denseVector;
+    return Promise.resolve(denseVector);
   }
 
   /**

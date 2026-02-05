@@ -40,7 +40,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@nlci/shared": "workspace:*"
+    "@nlci/shared": "workspace:*",
+    "web-tree-sitter": "^0.26.5"
   },
   "devDependencies": {
     "@nlci/config": "workspace:*",

@@ -4,14 +4,14 @@
  * Command-line interface for NLCI - Neural-LSH Code Intelligence.
  */
 
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { Command } from 'commander';
 
-import { scanCommand } from './commands/scan.js';
-import { queryCommand } from './commands/query.js';
 import { initCommand } from './commands/init.js';
-import { serveCommand } from './commands/serve.js';
+import { queryCommand } from './commands/query.js';
 import { reportCommand } from './commands/report.js';
+import { scanCommand } from './commands/scan.js';
+import { serveCommand } from './commands/serve.js';
 import { statsCommand } from './commands/stats.js';
 import { version } from './version.js';
 
@@ -44,7 +44,7 @@ program.addCommand(statsCommand);
 
 // Error handling
 program.exitOverride((err) => {
-  if (err.code === 'commander.helpDisplayed') {
+  if (err.code === 'commander.helpDisplayed' || err.code === 'commander.version') {
     process.exit(0);
   }
   console.error(chalk.red(`Error: ${err.message}`));

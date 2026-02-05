@@ -1,6 +1,6 @@
 [**Documentation v0.0.0**](../../../README.md)
 
-***
+---
 
 [Documentation](../../../packages.md) / [@nlci/cli](../README.md) / kv
 

@@ -274,3 +274,309 @@ export function generateProbes(hash: bigint, numBits: number, numProbes: number)
 
   return probes;
 }
+
+// ============================================================================
+// PHASE 1: ENHANCED HYPERPLANE PROJECTIONS (Hybrid Optimization)
+// ============================================================================
+
+/**
+ * Creates orthogonalized hyperplanes using Gram-Schmidt process.
+ * Orthogonal hyperplanes reduce correlation between hash bits,
+ * improving the quality of the LSH hash function.
+ *
+ * Mathematical foundation:
+ * - Orthogonal projections ensure each bit captures independent information
+ * - Reduces redundancy in the hash, improving recall
+ * - For K hyperplanes in d-dimensional space (K << d), all can be orthogonal
+ *
+ * @param numBits - Number of hyperplanes (K)
+ * @param dimension - Dimension of the embedding space
+ * @param seed - Random seed for reproducibility
+ * @returns A hash function with orthogonalized hyperplanes
+ */
+export function createOrthogonalHashFunction(
+  numBits: number,
+  dimension: number,
+  seed: number
+): HyperplaneHashFunction {
+  const rng = new SeededRandom(seed);
+  const hyperplanes: Hyperplane[] = [];
+
+  // Generate orthogonalized hyperplanes using Gram-Schmidt
+  for (let i = 0; i < numBits; i++) {
+    // Start with random Gaussian vector
+    const normal = new Float32Array(dimension);
+    for (let j = 0; j < dimension; j++) {
+      normal[j] = rng.nextGaussian();
+    }
+
+    // Orthogonalize against all previous hyperplanes
+    for (let j = 0; j < hyperplanes.length; j++) {
+      const prevNormal = hyperplanes[j].normal;
+      const dot = computeDotProductOptimized(normal, prevNormal);
+
+      // Subtract projection: v = v - (v·u)u
+      for (let k = 0; k < dimension; k++) {
+        normal[k] -= dot * prevNormal[k];
+      }
+    }
+
+    // Normalize to unit vector
+    const norm = Math.sqrt(computeDotProductOptimized(normal, normal));
+    if (norm > 1e-10) {
+      for (let j = 0; j < dimension; j++) {
+        normal[j] /= norm;
+      }
+    } else {
+      // Degenerate case: generate new random vector
+      // This can happen when numBits > dimension
+      for (let j = 0; j < dimension; j++) {
+        normal[j] = rng.nextGaussian();
+      }
+      const newNorm = Math.sqrt(computeDotProductOptimized(normal, normal));
+      for (let j = 0; j < dimension; j++) {
+        normal[j] /= newNorm;
+      }
+    }
+
+    hyperplanes.push({ normal, dimension });
+  }
+
+  return {
+    hyperplanes,
+    numBits,
+    dimension,
+  };
+}
+
+/**
+ * Optimized dot product with SIMD-friendly loop unrolling.
+ * Uses 8-element unrolling for better vectorization.
+ *
+ * @param a - First vector
+ * @param b - Second vector
+ * @returns Dot product of a and b
+ */
+export function computeDotProductOptimized(a: Float32Array | number[], b: Float32Array): number {
+  const n = a.length;
+  let sum0 = 0,
+    sum1 = 0,
+    sum2 = 0,
+    sum3 = 0;
+  let sum4 = 0,
+    sum5 = 0,
+    sum6 = 0,
+    sum7 = 0;
+
+  // Process 8 elements at a time for better vectorization
+  const chunks = Math.floor(n / 8) * 8;
+  for (let i = 0; i < chunks; i += 8) {
+    sum0 += a[i] * b[i];
+    sum1 += a[i + 1] * b[i + 1];
+    sum2 += a[i + 2] * b[i + 2];
+    sum3 += a[i + 3] * b[i + 3];
+    sum4 += a[i + 4] * b[i + 4];
+    sum5 += a[i + 5] * b[i + 5];
+    sum6 += a[i + 6] * b[i + 6];
+    sum7 += a[i + 7] * b[i + 7];
+  }
+
+  // Combine partial sums (reduces floating point error)
+  let sum = sum0 + sum4 + (sum1 + sum5) + (sum2 + sum6) + (sum3 + sum7);
+
+  // Handle remaining elements
+  for (let i = chunks; i < n; i++) {
+    sum += a[i] * b[i];
+  }
+
+  return sum;
+}
+
+/**
+ * Batch hash computation for multiple embeddings.
+ * Optimized for processing large numbers of vectors efficiently.
+ *
+ * @param embeddings - Array of embedding vectors
+ * @param hashFunction - The hash function to use
+ * @returns Array of hashes corresponding to each embedding
+ */
+export function computeHashBatch(
+  embeddings: readonly (Float32Array | number[])[],
+  hashFunction: HyperplaneHashFunction
+): bigint[] {
+  const numEmbeddings = embeddings.length;
+  const hashes: bigint[] = new Array(numEmbeddings);
+
+  // Pre-compute hyperplane array for cache efficiency
+  const hyperplaneNormals = hashFunction.hyperplanes.map((h) => h.normal);
+  const numBits = hashFunction.numBits;
+
+  for (let e = 0; e < numEmbeddings; e++) {
+    const embedding = embeddings[e];
+
+    if (embedding.length !== hashFunction.dimension) {
+      throw new Error(
+        `Embedding ${e} dimension ${embedding.length} does not match hash function dimension ${hashFunction.dimension}`
+      );
+    }
+
+    let hash = 0n;
+
+    for (let i = 0; i < numBits; i++) {
+      const dotProduct = computeDotProductOptimized(embedding, hyperplaneNormals[i]);
+
+      if (dotProduct >= 0) {
+        hash |= 1n << BigInt(i);
+      }
+    }
+
+    hashes[e] = hash;
+  }
+
+  return hashes;
+}
+
+/**
+ * Computes projection quality metrics for a hash function.
+ * Used for diagnostics and optimization.
+ *
+ * @param hashFunction - The hash function to analyze
+ * @returns Quality metrics including correlation and diversity
+ */
+export function computeProjectionQuality(hashFunction: HyperplaneHashFunction): ProjectionQuality {
+  const { hyperplanes } = hashFunction;
+  const n = hyperplanes.length;
+
+  if (n < 2) {
+    return {
+      meanCorrelation: 0,
+      maxCorrelation: 0,
+      diversityScore: 1,
+      isOrthogonal: true,
+    };
+  }
+
+  // Compute pairwise correlations (dot products of unit vectors)
+  let totalCorrelation = 0;
+  let maxCorrelation = 0;
+  let numPairs = 0;
+
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const correlation = Math.abs(
+        computeDotProductOptimized(hyperplanes[i].normal, hyperplanes[j].normal)
+      );
+      totalCorrelation += correlation;
+      maxCorrelation = Math.max(maxCorrelation, correlation);
+      numPairs++;
+    }
+  }
+
+  const meanCorrelation = totalCorrelation / numPairs;
+
+  // Diversity score: 1 - mean correlation (1 = fully diverse, 0 = fully correlated)
+  const diversityScore = 1 - meanCorrelation;
+
+  // Consider orthogonal if max correlation < 0.1
+  const isOrthogonal = maxCorrelation < 0.1;
+
+  return {
+    meanCorrelation,
+    maxCorrelation,
+    diversityScore,
+    isOrthogonal,
+  };
+}
+
+/**
+ * Quality metrics for projection analysis.
+ */
+export interface ProjectionQuality {
+  /** Mean absolute correlation between hyperplanes */
+  meanCorrelation: number;
+
+  /** Maximum absolute correlation between any two hyperplanes */
+  maxCorrelation: number;
+
+  /** Diversity score (1 - mean correlation) */
+  diversityScore: number;
+
+  /** True if all hyperplanes are approximately orthogonal */
+  isOrthogonal: boolean;
+}
+
+/**
+ * Advanced multi-probe with perturbation scoring.
+ * Orders probes by expected probability of finding matches.
+ *
+ * @param hash - Original hash
+ * @param embedding - Original embedding vector
+ * @param hashFunction - The hash function used
+ * @param numProbes - Number of probes to generate
+ * @returns Array of probe hashes ordered by expected match probability
+ */
+export function generateScoredProbes(
+  hash: bigint,
+  embedding: Float32Array | number[],
+  hashFunction: HyperplaneHashFunction,
+  numProbes: number
+): ScoredProbe[] {
+  if (numProbes <= 0) {
+    return [];
+  }
+
+  // Compute distance to each hyperplane (magnitude of dot product)
+  const distances: { bit: number; distance: number }[] = [];
+  for (let i = 0; i < hashFunction.numBits; i++) {
+    const distance = Math.abs(
+      computeDotProductOptimized(embedding, hashFunction.hyperplanes[i].normal)
+    );
+    distances.push({ bit: i, distance });
+  }
+
+  // Sort by distance (smallest first - most likely to flip)
+  distances.sort((a, b) => a.distance - b.distance);
+
+  const probes: ScoredProbe[] = [{ hash, score: 1.0, flippedBits: [] }];
+
+  // Generate single-bit flips ordered by probability
+  for (let i = 0; i < hashFunction.numBits && probes.length < numProbes; i++) {
+    const { bit, distance } = distances[i];
+    const flippedHash = hash ^ (1n << BigInt(bit));
+    // Score based on distance to hyperplane (closer = more likely to be wrong)
+    const score = Math.exp(-distance);
+    probes.push({ hash: flippedHash, score, flippedBits: [bit] });
+  }
+
+  // Generate double-bit flips if needed
+  if (probes.length < numProbes) {
+    for (let i = 0; i < hashFunction.numBits - 1 && probes.length < numProbes; i++) {
+      for (let j = i + 1; j < hashFunction.numBits && probes.length < numProbes; j++) {
+        const { bit: bit1, distance: d1 } = distances[i];
+        const { bit: bit2, distance: d2 } = distances[j];
+        const flippedHash = hash ^ (1n << BigInt(bit1)) ^ (1n << BigInt(bit2));
+        const score = Math.exp(-(d1 + d2));
+        probes.push({ hash: flippedHash, score, flippedBits: [bit1, bit2] });
+      }
+    }
+  }
+
+  // Sort by score (highest first)
+  probes.sort((a, b) => b.score - a.score);
+
+  return probes.slice(0, numProbes);
+}
+
+/**
+ * A probe with its expected match probability score.
+ */
+export interface ScoredProbe {
+  /** The probe hash value */
+  hash: bigint;
+
+  /** Expected probability of finding a match (0-1) */
+  score: number;
+
+  /** Which bits were flipped from the original */
+  flippedBits: number[];
+}

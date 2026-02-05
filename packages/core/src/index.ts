@@ -39,3 +39,6 @@ export * from './engine/index.js';
 
 // Embeddings
 export * from './embeddings/index.js';
+
+// Parser (Tree-sitter AST)
+export * from './parser/index.js';

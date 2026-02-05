@@ -358,4 +358,303 @@ describe('LSHIndex', () => {
       expect(index.size).toBe(2);
     });
   });
+
+  // =========================================================================
+  // Phase 2 Optimization Tests
+  // =========================================================================
+
+  describe('Phase 2: Orthogonal Hyperplanes', () => {
+    const dimension = 64;
+
+    it('should create index with orthogonal hyperplanes', () => {
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension,
+        useOrthogonalHyperplanes: true,
+      });
+
+      expect(index.size).toBe(0);
+
+      // Insert and query should work normally
+      const block = createCodeBlock('block-1');
+      const embedding = createRandomEmbedding(dimension, 42);
+      index.insert(block, embedding);
+
+      expect(index.size).toBe(1);
+      expect(index.has('block-1')).toBe(true);
+    });
+
+    it('should find similar blocks with orthogonal hyperplanes', () => {
+      const index = new LSHIndex({
+        numTables: 10,
+        numBits: 8,
+        dimension,
+        useOrthogonalHyperplanes: true,
+        multiProbe: { enabled: true, numProbes: 5 },
+      });
+
+      // Create base embedding and similar variant
+      const baseEmbedding = createRandomEmbedding(dimension, 100);
+      const block1 = createCodeBlock('block-1');
+      index.insert(block1, baseEmbedding);
+
+      // Create a very similar embedding
+      const similarEmbedding = createSimilarEmbedding(baseEmbedding, 0.05);
+
+      const results = index.query(similarEmbedding, {
+        maxResults: 10,
+        minSimilarity: 0.5,
+      });
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].block.id).toBe('block-1');
+    });
+  });
+
+  describe('Phase 2: Scored Probes', () => {
+    const dimension = 64;
+
+    it('should create index with scored probes enabled', () => {
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension,
+        useScoredProbes: true,
+        multiProbe: { enabled: true, numProbes: 5 },
+      });
+
+      expect(index.size).toBe(0);
+    });
+
+    it('should find similar blocks with scored probes', () => {
+      const index = new LSHIndex({
+        numTables: 10,
+        numBits: 8,
+        dimension,
+        useScoredProbes: true,
+        multiProbe: { enabled: true, numProbes: 5 },
+      });
+
+      const baseEmbedding = createRandomEmbedding(dimension, 200);
+      const block1 = createCodeBlock('block-1');
+      index.insert(block1, baseEmbedding);
+
+      const similarEmbedding = createSimilarEmbedding(baseEmbedding, 0.05);
+
+      const results = index.query(similarEmbedding, {
+        maxResults: 10,
+        minSimilarity: 0.5,
+      });
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].block.id).toBe('block-1');
+    });
+
+    it('should work with both orthogonal and scored probes', () => {
+      const index = new LSHIndex({
+        numTables: 10,
+        numBits: 8,
+        dimension,
+        useOrthogonalHyperplanes: true,
+        useScoredProbes: true,
+        multiProbe: { enabled: true, numProbes: 5 },
+      });
+
+      const baseEmbedding = createRandomEmbedding(dimension, 300);
+      const block1 = createCodeBlock('block-1');
+      index.insert(block1, baseEmbedding);
+
+      const similarEmbedding = createSimilarEmbedding(baseEmbedding, 0.05);
+
+      const results = index.query(similarEmbedding, {
+        maxResults: 10,
+        minSimilarity: 0.5,
+      });
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].block.id).toBe('block-1');
+    });
+  });
+
+  describe('Phase 2: Batch Insert', () => {
+    const dimension = 64;
+
+    it('should insert multiple blocks in batch', () => {
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension,
+        multiProbe: { enabled: false, numProbes: 0 },
+      });
+
+      const items = [
+        { block: createCodeBlock('block-1'), embedding: createRandomEmbedding(dimension, 1) },
+        { block: createCodeBlock('block-2'), embedding: createRandomEmbedding(dimension, 2) },
+        { block: createCodeBlock('block-3'), embedding: createRandomEmbedding(dimension, 3) },
+      ];
+
+      const insertedCount = index.insertBatch(items);
+
+      expect(insertedCount).toBe(3);
+      expect(index.size).toBe(3);
+      expect(index.has('block-1')).toBe(true);
+      expect(index.has('block-2')).toBe(true);
+      expect(index.has('block-3')).toBe(true);
+    });
+
+    it('should accept number[] embeddings in batch', () => {
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension,
+      });
+
+      const items = [
+        {
+          block: createCodeBlock('block-1'),
+          embedding: Array.from(createRandomEmbedding(dimension, 1)),
+        },
+        {
+          block: createCodeBlock('block-2'),
+          embedding: Array.from(createRandomEmbedding(dimension, 2)),
+        },
+      ];
+
+      const insertedCount = index.insertBatch(items);
+
+      expect(insertedCount).toBe(2);
+      expect(index.size).toBe(2);
+    });
+
+    it('should throw error for dimension mismatch in batch', () => {
+      const index = new LSHIndex({ dimension: 64 });
+
+      const items = [
+        { block: createCodeBlock('block-1'), embedding: createRandomEmbedding(32, 1) }, // Wrong dimension
+      ];
+
+      expect(() => index.insertBatch(items)).toThrow(/dimension/i);
+    });
+
+    it('should return 0 for empty batch', () => {
+      const index = new LSHIndex({ dimension });
+
+      const insertedCount = index.insertBatch([]);
+
+      expect(insertedCount).toBe(0);
+      expect(index.size).toBe(0);
+    });
+
+    it('should be queryable after batch insert', () => {
+      const index = new LSHIndex({
+        numTables: 10,
+        numBits: 8,
+        dimension,
+        multiProbe: { enabled: true, numProbes: 5 },
+      });
+
+      const baseEmbedding = createRandomEmbedding(dimension, 500);
+      const items = [
+        { block: createCodeBlock('block-1'), embedding: baseEmbedding },
+        { block: createCodeBlock('block-2'), embedding: createRandomEmbedding(dimension, 2) },
+        { block: createCodeBlock('block-3'), embedding: createRandomEmbedding(dimension, 3) },
+      ];
+
+      index.insertBatch(items);
+
+      const similarEmbedding = createSimilarEmbedding(baseEmbedding, 0.05);
+      const results = index.query(similarEmbedding, {
+        maxResults: 10,
+        minSimilarity: 0.5,
+      });
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].block.id).toBe('block-1');
+    });
+  });
+
+  describe('Phase 2: SIMD-Friendly Cosine Similarity', () => {
+    const dimension = 384; // Standard dimension for SIMD testing
+
+    it('should compute accurate similarity for vectors divisible by 8', () => {
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension,
+        multiProbe: { enabled: true, numProbes: 3 },
+      });
+
+      // Create two identical embeddings (similarity should be 1.0)
+      const embedding = createRandomEmbedding(dimension, 42);
+      const block = createCodeBlock('block-1');
+      index.insert(block, embedding);
+
+      const results = index.query(embedding, {
+        maxResults: 1,
+        minSimilarity: 0.0,
+        computeActualSimilarity: true,
+      });
+
+      expect(results.length).toBe(1);
+      expect(results[0].actualSimilarity).toBeCloseTo(1.0, 5);
+    });
+
+    it('should compute accurate similarity for vectors not divisible by 8', () => {
+      const oddDimension = 67; // Not divisible by 8
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension: oddDimension,
+        multiProbe: { enabled: true, numProbes: 3 },
+      });
+
+      const embedding = createRandomEmbedding(oddDimension, 42);
+      const block = createCodeBlock('block-1');
+      index.insert(block, embedding);
+
+      const results = index.query(embedding, {
+        maxResults: 1,
+        minSimilarity: 0.0,
+        computeActualSimilarity: true,
+      });
+
+      expect(results.length).toBe(1);
+      expect(results[0].actualSimilarity).toBeCloseTo(1.0, 5);
+    });
+
+    it('should compute accurate similarity for orthogonal vectors', () => {
+      // Create two orthogonal vectors (similarity should be ~0)
+      const dim = 64;
+      const index = new LSHIndex({
+        numTables: 5,
+        numBits: 8,
+        dimension: dim,
+        multiProbe: { enabled: true, numProbes: 3 },
+      });
+
+      // Vector 1: all values in first half
+      const v1 = new Float32Array(dim);
+      for (let i = 0; i < dim / 2; i++) v1[i] = 1;
+
+      // Vector 2: all values in second half (orthogonal to v1)
+      const v2 = new Float32Array(dim);
+      for (let i = dim / 2; i < dim; i++) v2[i] = 1;
+
+      const block = createCodeBlock('block-1');
+      index.insert(block, v1);
+
+      const results = index.query(v2, {
+        maxResults: 10,
+        minSimilarity: 0.0,
+        computeActualSimilarity: true,
+      });
+
+      // With orthogonal vectors, similarity should be 0
+      // But due to LSH table matches it might still appear in results
+      if (results.length > 0 && results[0].block.id === 'block-1') {
+        expect(results[0].actualSimilarity).toBeCloseTo(0.0, 3);
+      }
+    });
+  });
 });

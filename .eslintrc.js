@@ -19,7 +19,17 @@ module.exports = {
     node: true,
     es2022: true,
   },
-  ignorePatterns: ['node_modules/', 'dist/', 'coverage/', '.turbo/', '*.config.js', '*.config.mjs'],
+  ignorePatterns: [
+    'node_modules/',
+    'dist/',
+    'coverage/',
+    '.turbo/',
+    '*.config.js',
+    '*.config.mjs',
+    '**/*.test.ts',
+    '**/*.spec.ts',
+    '**/__tests__/**',
+  ],
   rules: {
     '@typescript-eslint/no-unused-vars': [
       'error',

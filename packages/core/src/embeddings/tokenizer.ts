@@ -584,7 +584,6 @@ export class CodeTokenizer {
 
     while (position < code.length) {
       const remaining = code.slice(position);
-      const consumed = 0;
 
       // Skip whitespace
       const whitespaceMatch = remaining.match(/^[\s\n\r\t]+/);
@@ -672,7 +671,7 @@ export class CodeTokenizer {
       if (foundOperator) continue;
 
       // Punctuation (brackets, braces, etc.)
-      const punctMatch = remaining.match(/^[(){}\[\];,]/);
+      const punctMatch = remaining.match(/^[(){}[\];,]/);
       if (punctMatch) {
         tokens.push({ value: punctMatch[0], type: 'punctuation', position });
         position += 1;
