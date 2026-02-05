@@ -26,7 +26,6 @@ import {
   generateProbes,
   generateScoredProbes,
   type HyperplaneHashFunction,
-  type ScoredProbe,
 } from './hyperplane.js';
 
 /**
@@ -348,11 +347,11 @@ export class LSHIndex {
             hash,
             embeddingArray,
             this.hashFunctions[i],
-            this.config.multiProbe!.numProbes!
+            this.config.multiProbe.numProbes!
           );
           hashesPerTable.set(
             i,
-            scoredProbes.map((p: ScoredProbe) => p.hash)
+            scoredProbes.map((p) => p.hash)
           );
         } else {
           const probes = generateProbes(
