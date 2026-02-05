@@ -405,7 +405,7 @@ export function computeHashBatch(
   hashFunction: HyperplaneHashFunction
 ): bigint[] {
   const numEmbeddings = embeddings.length;
-  const hashes: bigint[] = new Array(numEmbeddings);
+  const hashes: bigint[] = new Array<bigint>(numEmbeddings);
 
   // Pre-compute hyperplane array for cache efficiency
   const hyperplaneNormals = hashFunction.hyperplanes.map((h) => h.normal);

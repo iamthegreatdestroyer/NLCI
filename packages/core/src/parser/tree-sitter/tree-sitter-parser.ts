@@ -10,6 +10,7 @@ import type { SupportedLanguage } from '../../types/code-block.js';
 import { createCodeBlock } from '../../types/code-block.js';
 import type { GrammarLoader } from './grammar-loader.js';
 import { defaultGrammarLoader, GrammarLoadError } from './grammar-loader.js';
+import type { ExtractionRule } from './node-extractor.js';
 import { NodeExtractor } from './node-extractor.js';
 
 /**
@@ -26,7 +27,7 @@ export interface TreeSitterParserOptions {
   extractNested?: boolean;
 
   /** Custom extraction rules per language */
-  customRules?: Map<SupportedLanguage, import('./node-extractor.js').ExtractionRule[]>;
+  customRules?: Map<SupportedLanguage, ExtractionRule[]>;
 
   /** Timeout for parsing in milliseconds (default: 5000) */
   timeout?: number;
@@ -110,7 +111,7 @@ export class TreeSitterParser implements CodeParser {
   >;
   private readonly customRules?: Map<
     SupportedLanguage,
-    import('./node-extractor.js').ExtractionRule[]
+    ExtractionRule[]
   >;
   private readonly extractorCache = new Map<SupportedLanguage, NodeExtractor>();
   private initialized = false;

@@ -510,7 +510,7 @@ export class NodeExtractor {
   /**
    * Attempts to extract a code block from a node.
    */
-  private tryExtract(node: SyntaxNode, source: string): ExtractedNode | null {
+  private tryExtract(node: SyntaxNode, _source: string): ExtractedNode | null {
     const rule = this.rules.find((r) => r.nodeTypes.includes(node.type));
     if (!rule) return null;
 
