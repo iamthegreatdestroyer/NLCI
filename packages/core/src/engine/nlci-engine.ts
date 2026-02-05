@@ -15,7 +15,7 @@ import type {
   ScanSummary,
 } from '../types/clone-result.js';
 import type { CodeBlock, SupportedLanguage } from '../types/code-block.js';
-import type { DeepPartial, NLCIConfig } from '../types/config.js';
+import type { NLCIConfig, DeepPartial } from '../types/config.js';
 import { mergeConfig } from '../types/config.js';
 import {
   MockEmbeddingModel,
