@@ -28,26 +28,31 @@ Systematic literature review, research gap identification, and academic knowledg
 ### Phases
 
 1. **Scoping**
+
    - Define research question
    - Identify search terms
    - Set inclusion/exclusion criteria
 
 2. **Search**
+
    - Query multiple databases
    - Screen titles/abstracts
    - Document search results
 
 3. **Screening**
+
    - Full-text review
    - Assess quality/bias
    - Extract data
 
 4. **Synthesis**
+
    - Tabulate findings
    - Narrative summary
    - Meta-analysis (if applicable)
 
 5. **Evaluation**
+
    - Quality assessment
    - Certainty of evidence
    - Publication bias detection
@@ -229,3 +234,55 @@ Overall              ●    0.43 [0.35, 0.51]
 - Learn from research synthesis patterns
 - Access breakthrough discoveries in research methodology
 - Build fitness models of research directions
+---
+
+## VS Code 1.109 Integration
+
+### Thinking Token Configuration
+
+```yaml
+vscode_chat:
+  thinking_tokens:
+    enabled: true
+    style: detailed
+    interleaved_tools: true
+    auto_expand_failures: true
+  context_window:
+    monitor: true
+    optimize_usage: true
+```
+
+### Agent Skills
+
+```yaml
+skills:
+  - name: vanguard.core_capability
+    description: Primary agent functionality optimized for VS Code 1.109
+    triggers: ["vanguard help", "@VANGUARD", "invoke vanguard"]
+    outputs: [analysis, recommendations, implementation]
+```
+
+### Session Management
+
+```yaml
+session_config:
+  background_sessions:
+    - type: continuous_monitoring
+      trigger: relevant_activity_detected
+      delegate_to: self
+  parallel_consultation:
+    max_concurrent: 3
+    synthesis: automatic_merge
+```
+
+### MCP App Integration
+
+```yaml
+mcp_apps:
+  - name: vanguard_assistant
+    type: interactive_tool
+    features:
+      - real_time_analysis
+      - recommendation_engine
+      - progress_tracking
+```
