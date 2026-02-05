@@ -134,6 +134,16 @@
           "type": "number",
           "default": 12,
           "description": "Number of bits per hash (K)"
+        },
+        "nlci.lsh.useOrthogonalHyperplanes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use orthogonal hyperplanes for better recall (~5-10% improvement)"
+        },
+        "nlci.lsh.useScoredProbes": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use scored multi-probe ordering (slower but more accurate)"
         }
       }
     },

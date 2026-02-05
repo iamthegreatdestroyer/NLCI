@@ -130,7 +130,11 @@ export class NlciService implements vscode.Disposable {
         numTables: config.get<number>('lsh.numTables', 20),
         numBits: config.get<number>('lsh.numBits', 12),
         dimension: 384,
-        multiProbe: { enabled: true, numProbes: 3 },
+        multiProbe: { enabled: true, numProbes: 5 },
+        // Enable optimized hyperplane projections for better recall
+        useOrthogonalHyperplanes: config.get<boolean>('lsh.useOrthogonalHyperplanes', true),
+        // Enable scored probes for smarter multi-probe ordering
+        useScoredProbes: config.get<boolean>('lsh.useScoredProbes', false),
       },
       parser: {
         minBlockSize: 3,
