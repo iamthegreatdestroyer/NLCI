@@ -15,7 +15,7 @@ import type {
   ScanSummary,
 } from '../types/clone-result.js';
 import type { CodeBlock, SupportedLanguage } from '../types/code-block.js';
-import type { NLCIConfig, DeepPartial } from '../types/config.js';
+import type { DeepPartial, NLCIConfig } from '../types/config.js';
 import { mergeConfig } from '../types/config.js';
 import {
   MockEmbeddingModel,
@@ -174,12 +174,15 @@ export class NLCIEngine {
     // for TypeScript's strict null checking during DTS generation
     const parser = this.config.parser;
     if (!parser) {
-      throw new Error('Parser config missing - this should never happen as mergeConfig ensures complete config');
+      throw new Error(
+        'Parser config missing - this should never happen as mergeConfig ensures complete config'
+      );
     }
 
     for (const block of parseResult.blocks) {
-      // Skip small blocks
-      if ((block.tokenCount ?? 0) < parser.minBlockSize) {
+      // Skip small blocks - use default (10) if minBlockSize is undefined
+      const minSize = parser.minBlockSize ?? 10;
+      if ((block.tokenCount ?? 0) < minSize) {
         continue;
       }
 
