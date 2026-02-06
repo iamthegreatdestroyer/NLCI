@@ -1,0 +1,21 @@
+# Source files (dist is the built output)
+src/**
+tsconfig.json
+tsup.config.ts
+
+# Build artifacts & caches
+.turbo/**
+node_modules/**
+*.vsix
+
+# Editor & IDE
+.vscode/**
+.vscode-test/**
+
+# Git
+.gitignore
+
+# Dev dependencies & config
+.eslintrc*
+.prettierrc*
+*.map
