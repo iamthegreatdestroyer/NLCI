@@ -6,6 +6,7 @@
  */
 
 import { createTFIDFEmbedder } from '../embeddings/tfidf-embedder.js';
+import { FileStorage, MemoryStorage } from '../lsh/bucket-store.js';
 import { LSHIndex, type LSHIndexStats } from '../lsh/lsh-index.js';
 import type {
   CloneCluster,
@@ -103,13 +104,19 @@ export class NLCIEngine {
   ) {
     this.config = mergeConfig(config);
 
-    // Initialize LSH index
+    // Initialize LSH index with file storage when configured
+    const storage =
+      this.config.storage.type === 'file'
+        ? new FileStorage(this.config.storage.path)
+        : new MemoryStorage();
+
     this.index = new LSHIndex({
       numTables: this.config.lsh.numTables,
       numBits: this.config.lsh.numBits,
       dimension: this.config.lsh.dimension,
       ...(this.config.lsh.seed !== undefined && { seed: this.config.lsh.seed }),
       multiProbe: this.config.lsh.multiProbe,
+      storage,
     });
 
     // Initialize parser (use injected or default)

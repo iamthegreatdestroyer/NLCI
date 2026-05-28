@@ -2,7 +2,7 @@
   "name": "nlci-vscode",
   "displayName": "NLCI - Code Clone Detection",
   "description": "Neural-LSH Code Intelligence - Find similar code blocks in O(1) time",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "nlci",
   "license": "AGPL-3.0-or-later",
   "repository": {
@@ -177,8 +177,8 @@
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
-    "package": "vsce package --no-dependencies",
-    "publish": "vsce publish --no-dependencies"
+    "package": "node --require ./polyfill-file.cjs node_modules/.pnpm/@vscode+vsce@2.32.0/node_modules/@vscode/vsce/out/main.js package --no-dependencies",
+    "publish": "node --require ./polyfill-file.cjs node_modules/.pnpm/@vscode+vsce@2.32.0/node_modules/@vscode/vsce/out/main.js publish --no-dependencies"
   },
   "dependencies": {
     "@nlci/core": "workspace:*",

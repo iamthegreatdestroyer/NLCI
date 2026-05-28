@@ -37,7 +37,7 @@ const defaultConfig: Partial<NLCIConfig> = {
     },
   },
   embedding: {
-    modelType: 'onnx',
+    modelType: 'tfidf',
     modelPath: './models/code-embedder-small/model.onnx',
     dimension: 384,
     maxSequenceLength: 512,

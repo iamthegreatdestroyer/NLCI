@@ -91,6 +91,18 @@ export interface LSHConfig {
    * @default { enabled: true, numProbes: 3 }
    */
   multiProbe?: MultiProbeConfig;
+
+  /**
+   * Use orthogonal hyperplanes for better bit independence (~5-10% recall improvement).
+   * @default false
+   */
+  useOrthogonalHyperplanes?: boolean;
+
+  /**
+   * Use scored multi-probe ordering (slower but more accurate).
+   * @default false
+   */
+  useScoredProbes?: boolean;
 }
 
 /**
@@ -379,7 +391,10 @@ export function mergeConfig(userConfig?: DeepPartial<NLCIConfig>): NLCIConfig {
     embedding: { ...DEFAULT_CONFIG.embedding, ...(userConfig.embedding ?? {}) } as EmbeddingConfig,
     parser: { ...DEFAULT_CONFIG.parser, ...(userConfig.parser ?? {}) } as ParserConfig,
     storage: { ...DEFAULT_CONFIG.storage, ...(userConfig.storage ?? {}) } as StorageConfig,
-    performance: { ...DEFAULT_CONFIG.performance, ...(userConfig.performance ?? {}) } as PerformanceConfig,
+    performance: {
+      ...DEFAULT_CONFIG.performance,
+      ...(userConfig.performance ?? {}),
+    } as PerformanceConfig,
     logging: { ...DEFAULT_CONFIG.logging, ...(userConfig.logging ?? {}) } as LoggingConfig,
   };
 }

@@ -4,6 +4,9 @@
  * Manages storage and retrieval of hash tables with optional persistence.
  */
 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 import type { CodeBlock } from '../types/code-block.js';
 import { HashTable, type HashTableStats, type SerializedHashTable } from './hash-table.js';
 
@@ -35,6 +38,56 @@ export interface BucketStorage {
 
   /** Check if key exists */
   exists(key: string): Promise<boolean>;
+}
+
+/**
+ * File-based storage backend. Persists data as JSON files under a directory.
+ */
+export class FileStorage implements BucketStorage {
+  constructor(private readonly dir: string) {}
+
+  private filePath(key: string): string {
+    return path.join(this.dir, `${key}.json`);
+  }
+
+  async save(key: string, data: string): Promise<void> {
+    await fs.mkdir(this.dir, { recursive: true });
+    await fs.writeFile(this.filePath(key), data, 'utf-8');
+  }
+
+  async load(key: string): Promise<string | null> {
+    try {
+      return await fs.readFile(this.filePath(key), 'utf-8');
+    } catch {
+      return null;
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    try {
+      await fs.unlink(this.filePath(key));
+    } catch {
+      // ignore
+    }
+  }
+
+  async list(): Promise<string[]> {
+    try {
+      const entries = await fs.readdir(this.dir);
+      return entries.filter((e) => e.endsWith('.json')).map((e) => e.slice(0, -5));
+    } catch {
+      return [];
+    }
+  }
+
+  async exists(key: string): Promise<boolean> {
+    try {
+      await fs.access(this.filePath(key));
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 
 /**

@@ -34,17 +34,17 @@ export const reportCommand = new Command('report')
     const spinner = ora('Generating report...').start();
 
     try {
-      // Load index
-      const indexPath = path.resolve(options.index ?? '.nlci-index');
-
-      try {
-        await fs.access(indexPath);
-      } catch {
-        throw new Error(`Index not found at ${indexPath}. Run 'nlci scan' first.`);
-      }
-
       spinner.text = 'Loading index...';
       const config = await loadConfig(process.cwd());
+
+      // Check that the storage directory exists before loading
+      const storagePath = path.resolve(config.storage?.path ?? '.nlci');
+      try {
+        await fs.access(storagePath);
+      } catch {
+        throw new Error(`Index not found at ${storagePath}. Run 'nlci scan' first.`);
+      }
+
       const engine = new NLCIEngine(config);
       await engine.load();
 

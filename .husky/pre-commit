@@ -24,7 +24,7 @@ echo "📝 Checking files: $(echo $STAGED_FILES | wc -w) files"
 
 # Run linting
 echo "🔧 Linting..."
-if ! pnpm lint:staged $STAGED_FILES; then
+if ! pnpm exec lint-staged; then
   echo "❌ Linting failed. Fix issues and try again."
   exit 1
 fi
@@ -38,7 +38,7 @@ fi
 
 # Run unit tests for changed files
 echo "🧪 Running unit tests..."
-if ! pnpm test -- $STAGED_FILES; then
+if ! pnpm test; then
   echo "❌ Tests failed. Fix issues and try again."
   exit 1
 fi
