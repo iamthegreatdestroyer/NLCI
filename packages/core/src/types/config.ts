@@ -39,6 +39,9 @@ export interface NLCIConfig {
 
   /** Logging configuration */
   logging: LoggingConfig;
+
+  /** Scan memory configuration (Mem0-inspired incremental scanning) */
+  memory?: MemoryConfig;
 }
 
 /**
@@ -233,14 +236,49 @@ export interface ParserConfig {
 }
 
 /**
+ * ChromaDB connection configuration (used when storage.type = 'chromadb').
+ */
+export interface ChromaDBConfig {
+  /** ChromaDB server URL. @default 'http://localhost:8000' */
+  url?: string;
+  /** Collection name for LSH buckets. @default 'nlci_buckets' */
+  collectionName?: string;
+  /** ChromaDB tenant. @default 'default_tenant' */
+  tenant?: string;
+  /** ChromaDB database. @default 'default_database' */
+  database?: string;
+}
+
+/**
+ * Scan memory configuration (Mem0-inspired session persistence).
+ */
+export interface MemoryConfig {
+  /**
+   * Enable scan memory. When true, NLCI records per-file content hashes
+   * so unchanged files are skipped on subsequent scans.
+   * @default false
+   */
+  enabled: boolean;
+
+  /**
+   * Directory to persist scan-memory.json.
+   * Defaults to the same directory as storage.path.
+   */
+  path?: string;
+}
+
+/**
  * Storage configuration.
  */
 export interface StorageConfig {
   /**
    * Storage backend type.
+   * - 'file': JSON files under storage.path (default)
+   * - 'memory': in-process Map, no persistence
+   * - 'chromadb': ChromaDB Rust server (4x faster, requires running server)
    * @default 'file'
    */
-  type: 'memory' | 'file' | 'sqlite' | 'leveldb';
+  type: 'memory' | 'file' | 'sqlite' | 'leveldb' | 'chromadb';
 
   /**
    * Path to the storage directory.
@@ -259,6 +297,11 @@ export interface StorageConfig {
    * @default 256
    */
   maxCacheSizeMB: number;
+
+  /**
+   * ChromaDB connection settings (only used when type = 'chromadb').
+   */
+  chromadb?: ChromaDBConfig;
 }
 
 /**

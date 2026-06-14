@@ -1,6 +1,6 @@
 {
   "name": "@nlci/core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Core NLCI engine with LSH-based code similarity detection",
   "author": "Stevo <sgbilod@gmail.com>",
   "license": "AGPL-3.0-or-later",
@@ -53,15 +53,19 @@
     "vitest": "^1.2.0"
   },
   "peerDependencies": {
+    "chromadb": "^1.7.0",
     "onnxruntime-node": "^1.16.0"
   },
   "peerDependenciesMeta": {
+    "chromadb": {
+      "optional": true
+    },
     "onnxruntime-node": {
       "optional": true
     }
   },
   "engines": {
-    "node": ">=18.0.0 <19.0.0"
+    "node": ">=18.0.0"
   },
   "keywords": [
     "nlci",

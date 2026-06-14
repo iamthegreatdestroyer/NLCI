@@ -42,3 +42,6 @@ export * from './embeddings/index.js';
 
 // Parser (Tree-sitter AST)
 export * from './parser/index.js';
+
+// Memory (Mem0-inspired scan persistence)
+export * from './memory/index.js';

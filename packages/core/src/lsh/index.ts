@@ -44,7 +44,11 @@ export {
 // Bucket store
 export {
   BucketStore,
+  FileStorage,
   MemoryStorage,
   type BucketStorage,
   type BucketStoreStats,
 } from './bucket-store.js';
+
+// ChromaDB storage backend
+export { ChromaStorage, type ChromaStorageOptions } from './chroma-storage.js';

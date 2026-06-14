@@ -6,8 +6,10 @@
  */
 
 import { createTFIDFEmbedder } from '../embeddings/tfidf-embedder.js';
+import { ChromaStorage } from '../lsh/chroma-storage.js';
 import { FileStorage, MemoryStorage } from '../lsh/bucket-store.js';
 import { LSHIndex, type LSHIndexStats } from '../lsh/lsh-index.js';
+import { ScanMemory } from '../memory/scan-memory.js';
 import type {
   CloneCluster,
   CloneType,
@@ -87,6 +89,7 @@ export class NLCIEngine {
   private readonly parser: CodeParser;
   private readonly embeddingModel: EmbeddingModel;
   private readonly queryEngine: QueryEngine;
+  private readonly _scanMemory: ScanMemory | undefined;
   private scanSummary: ScanSummary | null = null;
 
   /**
@@ -104,11 +107,28 @@ export class NLCIEngine {
   ) {
     this.config = mergeConfig(config);
 
-    // Initialize LSH index with file storage when configured
-    const storage =
-      this.config.storage.type === 'file'
-        ? new FileStorage(this.config.storage.path)
-        : new MemoryStorage();
+    // Initialize LSH storage backend
+    const storagePath = this.config.storage.path;
+    const storage = (() => {
+      switch (this.config.storage.type) {
+        case 'chromadb':
+          return new ChromaStorage({
+            url: this.config.storage.chromadb?.url,
+            collectionName: this.config.storage.chromadb?.collectionName,
+            tenant: this.config.storage.chromadb?.tenant,
+            database: this.config.storage.chromadb?.database,
+          });
+        case 'file':
+          return new FileStorage(storagePath);
+        default:
+          return new MemoryStorage();
+      }
+    })();
+
+    // Initialize scan memory if enabled
+    if (this.config.memory?.enabled) {
+      this._scanMemory = new ScanMemory(this.config.memory.path ?? storagePath);
+    }
 
     this.index = new LSHIndex({
       numTables: this.config.lsh.numTables,
@@ -383,6 +403,14 @@ export class NLCIEngine {
    */
   getConfig(): NLCIConfig {
     return this.config;
+  }
+
+  /**
+   * Returns the scan memory instance if enabled in config.
+   * Call `await engine.memory?.load()` before scanning to restore prior session state.
+   */
+  get memory(): ScanMemory | undefined {
+    return this._scanMemory;
   }
 }
 
