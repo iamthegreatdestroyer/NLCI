@@ -308,7 +308,6 @@ Dataset Size    Indexing Time    Query Time    Memory Usage
 
 - **Primary:** AGPL-3.0-or-later (open source)
 - **Dual Licensing:** Commercial license available
-- **Patent Status:** Patent pending on LSH algorithm application
 
 ### Security
 
