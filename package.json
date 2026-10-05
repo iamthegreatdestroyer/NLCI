@@ -49,7 +49,7 @@
     "docs:deploy": "docusaurus deploy"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.0",
+    "@changesets/cli": "^3.0.3",
     "@types/node": "^20.10.0",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^1.2.0",
